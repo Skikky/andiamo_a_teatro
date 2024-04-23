@@ -28,8 +28,10 @@ public class Spettacolo {
     @Column(nullable = false)
     @Check(constraints = "prezzo >= 0")
     private Double prezzo;
-    @OneToOne
+    @OneToOne(optional = false)
+    @JoinColumn(name = "sala_id", nullable = false)
     private Sala sala;
-    @OneToOne
+    @OneToOne(optional = false)
+    @JoinColumn(name = "genere_id", nullable = false)
     private Genere genere;
 }

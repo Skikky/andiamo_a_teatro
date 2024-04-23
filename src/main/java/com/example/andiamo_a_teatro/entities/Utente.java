@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.Check;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table
@@ -35,4 +36,9 @@ public class Utente {
     private String password;
     @Column(nullable = false)
     private Boolean isLoggato;
+    @Column(nullable = false)
+    @Check(constraints = "saldo > 0")
+    private Double saldo;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "utente", cascade = CascadeType.ALL)
+    private List<Biglietto> bigliettiUtente;
 }

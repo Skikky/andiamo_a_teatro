@@ -1,5 +1,6 @@
 package com.example.andiamo_a_teatro.controllers;
 
+import com.example.andiamo_a_teatro.entities.Biglietto;
 import com.example.andiamo_a_teatro.entities.Utente;
 import com.example.andiamo_a_teatro.services.UtenteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,18 @@ import java.util.List;
 public class UtenteController {
     @Autowired
     private UtenteService utenteService;
+
+    @PostMapping("/{utenteId}/acquista-biglietto/{bigliettoId}")
+    public ResponseEntity<?> acquistaBiglietto(@PathVariable Long utenteId, @PathVariable Long bigliettoId) {
+        try {
+            // Acquista il biglietto per l'utente
+            Biglietto biglietto = utenteService.acquistaBiglietto(utenteId, bigliettoId);
+            return ResponseEntity.ok("Biglietto acquistato con successo per l'utente con ID: " + utenteId);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Errore durante l'acquisto del biglietto: " + e.getMessage());
+        }
+    }
 
     @GetMapping("/get/{id}")
     public ResponseEntity<Utente> getUtenteById(@PathVariable Long id) {

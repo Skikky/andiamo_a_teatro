@@ -19,11 +19,14 @@ public class Biglietto {
     private Long id;
     @Column(nullable = false)
     private Timestamp timestamp;
-    @OneToOne
+    @OneToOne(optional = false)
+    @JoinColumn(name = "utente_id", nullable = false)
     private Utente utente;
-    @OneToOne
+    @OneToOne(optional = false)
+    @JoinColumn(name = "spettacolo_id", nullable = false)
     private Spettacolo spettacolo;
-    @OneToOne
+    @OneToOne(optional = false)
+    @JoinColumn(name = "posto_id", nullable = false)
     private Posto posto;
 
 }
