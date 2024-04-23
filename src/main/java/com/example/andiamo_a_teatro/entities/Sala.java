@@ -1,10 +1,7 @@
 package com.example.andiamo_a_teatro.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.Check;
 
 @Entity
@@ -13,6 +10,7 @@ import org.hibernate.annotations.Check;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Sala {
 
     @Id
