@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Biglietto {
+public class  Biglietto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

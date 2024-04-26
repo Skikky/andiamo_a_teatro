@@ -2,6 +2,8 @@ package com.example.andiamo_a_teatro.controllers;
 
 import com.example.andiamo_a_teatro.entities.Biglietto;
 import com.example.andiamo_a_teatro.entities.Utente;
+import com.example.andiamo_a_teatro.response.BigliettoResponse;
+import com.example.andiamo_a_teatro.response.UtenteResponse;
 import com.example.andiamo_a_teatro.services.UtenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,32 +21,31 @@ public class UtenteController {
     @PostMapping("/{utenteId}/acquista-biglietto/{bigliettoId}")
     public ResponseEntity<?> acquistaBiglietto(@PathVariable Long utenteId, @PathVariable Long bigliettoId) {
         try {
-            // Acquista il biglietto per l'utente
-            Biglietto biglietto = utenteService.acquistaBiglietto(utenteId, bigliettoId);
+            BigliettoResponse biglietto = utenteService.acquistaBiglietto(utenteId, bigliettoId);
             return ResponseEntity.ok("Biglietto acquistato con successo per l'utente con ID: " + utenteId);
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Errore durante l'acquisto del biglietto: " + e.getMessage());
         }
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<Utente> getUtenteById(@PathVariable Long id) {
+    public ResponseEntity<UtenteResponse> getUtenteById(@PathVariable Long id) {
         return ResponseEntity.ok(utenteService.getUtenteById(id));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Utente>> getAllUtenti() {
+    public ResponseEntity<List<UtenteResponse>> getAllUtenti() {
         return ResponseEntity.ok(utenteService.getAllUtenti());
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Utente> createUtente(@RequestBody Utente utente) {
+    public ResponseEntity<UtenteResponse> createUtente(@RequestBody Utente utente) {
         return ResponseEntity.status(HttpStatus.CREATED).body(utenteService.createUtente(utente));
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Utente> updateUtente(@PathVariable Long id, @RequestBody Utente newUtente) {
+    public ResponseEntity<UtenteResponse> updateUtente(@PathVariable Long id, @RequestBody Utente newUtente) {
         return ResponseEntity.ok(utenteService.updateUtente(id, newUtente));
     }
 

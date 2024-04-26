@@ -1,15 +1,21 @@
 package com.example.andiamo_a_teatro.services;
 
 import com.example.andiamo_a_teatro.entities.Biglietto;
-import com.example.andiamo_a_teatro.entities.Spettacolo;
 import com.example.andiamo_a_teatro.entities.Utente;
 import com.example.andiamo_a_teatro.repositories.BigliettoRepository;
 import com.example.andiamo_a_teatro.repositories.UtenteRepository;
+import com.example.andiamo_a_teatro.response.BigliettoResponse;
+import com.example.andiamo_a_teatro.response.UtenteResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.Optional;
+
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UtenteService {
@@ -20,44 +26,108 @@ public class UtenteService {
     @Autowired
     private SpettacoloService spettacoloService;
 
-    public Biglietto acquistaBiglietto(Long utenteId, Long bigliettoId) {
-        Utente utente = utenteRepository.findById(utenteId).orElseThrow(() -> new RuntimeException("Utente non trovato con ID: " + utenteId));
+    private Utente convertToUtente(UtenteResponse utenteResponse) {
+        Utente.UtenteBuilder utenteBuilder = Utente.builder()
+                .id(utenteResponse.getId_utente())
+                .nome(utenteResponse.getNome())
+                .cognome(utenteResponse.getCognome())
+                .email(utenteResponse.getEmail())
+                .indirizzo(utenteResponse.getIndirizzo())
+                .telefono(utenteResponse.getTelefono())
+                .nascita(utenteResponse.getNascita())
+                .password(utenteResponse.getPassword())
+                .saldo(utenteResponse.getSaldo());
 
-        Biglietto biglietto = bigliettoRepository.findById(bigliettoId).orElseThrow(() -> new RuntimeException("Biglietto non trovato con ID: " + bigliettoId));
-        Spettacolo spettacolo = biglietto.getSpettacolo();
+        List<Biglietto> bigliettiUtente = utenteResponse.getId_biglietto().stream()
+                .map(bigliettoRepository::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
 
-        if (utente.getBigliettiUtente().contains(biglietto)) {
-            throw new RuntimeException("Il biglietto con ID " + bigliettoId + " è già associato all'utente con ID " + utenteId);
+        return utenteBuilder.bigliettiUtente(bigliettiUtente)
+                .build();
+    }
+
+    private UtenteResponse convertToUtenteResponse(Utente utente) {
+        List<Long> idBiglietti = Optional.ofNullable(utente.getBigliettiUtente())
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(Biglietto::getId)
+                .collect(Collectors.toList());
+
+        return UtenteResponse.builder()
+                .id_utente(utente.getId())
+                .nome(utente.getNome())
+                .cognome(utente.getCognome())
+                .email(utente.getEmail())
+                .indirizzo(utente.getIndirizzo())
+                .telefono(utente.getTelefono())
+                .nascita(utente.getNascita())
+                .password(utente.getPassword())
+                .saldo(utente.getSaldo())
+                .id_biglietto(idBiglietti)
+                .build();
+    }
+
+    private BigliettoResponse convertToBigliettoResponse(Biglietto biglietto) {
+        return BigliettoResponse.builder()
+                .id_biglietto(biglietto.getId())
+                .timestamp(biglietto.getTimestamp())
+                .id_utente(biglietto.getUtente().getId())
+                .id_spettacolo(biglietto.getSpettacolo().getId())
+                .id_posto(biglietto.getPosto().getId())
+                .build();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public BigliettoResponse acquistaBiglietto(Long utenteId, Long bigliettoId) throws IllegalArgumentException {
+        Utente utente = utenteRepository.findById(utenteId)
+                .orElseThrow(() -> new IllegalArgumentException("Utente non trovato con ID: " + utenteId));
+
+        Biglietto biglietto = bigliettoRepository.findById(bigliettoId)
+                .orElseThrow(() -> new IllegalArgumentException("Biglietto non trovato con ID: " + bigliettoId));
+
+        double prezzoBiglietto = biglietto.getSpettacolo().getPrezzo();
+        if (utente.getSaldo() >= prezzoBiglietto) {
+            double nuovoSaldo = utente.getSaldo() - prezzoBiglietto;
+            utente.setSaldo(nuovoSaldo);
+            utenteRepository.saveAndFlush(utente);
+
+            utente.getBigliettiUtente().add(biglietto);
+
+            biglietto.setUtente(utente);
+
+            bigliettoRepository.saveAndFlush(biglietto);
+
+            return BigliettoResponse.builder()
+                    .id_biglietto(biglietto.getId())
+                    .timestamp(biglietto.getTimestamp())
+                    .id_utente(utenteId)
+                    .id_spettacolo(biglietto.getSpettacolo().getId())
+                    .id_posto(biglietto.getPosto().getId())
+                    .build();
+        } else {
+            throw new IllegalArgumentException("L'utente non ha abbastanza soldi per acquistare il biglietto.");
         }
+    }
 
-        Double prezzoSpettacolo = spettacolo.getPrezzo();
-        if (utente.getSaldo() < prezzoSpettacolo) {
-            throw new RuntimeException("Saldo insufficiente per acquistare il biglietto");
-        }
+    public UtenteResponse getUtenteById(Long id) {
+        Utente utente = utenteRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Utente non trovato con id: " + id));
 
-        Double nuovoSaldo = utente.getSaldo() - prezzoSpettacolo;
-        utente.setSaldo(nuovoSaldo);
+        return convertToUtenteResponse(utente);
+    }
 
-        biglietto.setUtente(utente);
-        utente.getBigliettiUtente().add(biglietto);
+    public List<UtenteResponse> getAllUtenti() {
+        return utenteRepository.findAll().stream().map(this::convertToUtenteResponse).toList();
+    }
+
+    public UtenteResponse createUtente(Utente utente) {
         utenteRepository.saveAndFlush(utente);
-        return biglietto;
+        return convertToUtenteResponse(utente);
     }
 
-    public Utente getUtenteById(Long id) {
-        Optional<Utente> optionalUtente = utenteRepository.findById(id);
-        return optionalUtente.orElseThrow(() -> new RuntimeException("Utente non trovato con id: " + id));
-    }
-
-    public List<Utente> getAllUtenti() {
-        return utenteRepository.findAll();
-    }
-
-    public Utente createUtente(Utente utente) {
-        return utenteRepository.saveAndFlush(utente);
-    }
-
-    public Utente updateUtente(Long id, Utente newUtente) {
+    public UtenteResponse updateUtente(Long id, Utente newUtente) {
         Utente utente = Utente.builder()
                 .id(id)
                 .nome(newUtente.getNome())
@@ -70,12 +140,10 @@ public class UtenteService {
                 .isLoggato(newUtente.getIsLoggato())
                 .build();
         utenteRepository.saveAndFlush(utente);
-        return utente;
+        return convertToUtenteResponse(utente);
     }
 
     public void deleteUtenteById(Long id) {
         utenteRepository.deleteById(id);
     }
-
-
 }

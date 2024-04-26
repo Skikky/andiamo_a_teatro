@@ -1,5 +1,6 @@
 package com.example.andiamo_a_teatro.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Check;
@@ -39,6 +40,7 @@ public class Utente {
     @Column(nullable = false)
     @Check(constraints = "saldo > 0")
     private Double saldo;
+    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "utente", cascade = CascadeType.ALL)
     private List<Biglietto> bigliettiUtente;
 }
