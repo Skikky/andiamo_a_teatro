@@ -21,5 +21,5 @@ public class UtenteResponse {
     private String password;
     private Double saldo;
     private List<Long> id_biglietto;
-
+    private List<Long> id_recensione;
 }

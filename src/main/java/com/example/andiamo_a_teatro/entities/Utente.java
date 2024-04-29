@@ -40,7 +40,8 @@ public class Utente {
     @Column(nullable = false)
     @Check(constraints = "saldo > 0")
     private Double saldo;
-    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "utente", cascade = CascadeType.ALL)
     private List<Biglietto> bigliettiUtente;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "utente", cascade = CascadeType.ALL)
+    private List<Recensione> recensioniUtente;
 }

@@ -21,7 +21,7 @@ public class Sala {
     private Integer posti;
     @Column(nullable = false)
     private String nome;
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "sede_id", nullable = false)
     private Sede sede;
 }

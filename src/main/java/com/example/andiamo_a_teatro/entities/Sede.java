@@ -21,7 +21,7 @@ public class Sede {
     private String nome;
     @Column(nullable = false)
     private Boolean isOpen;
-    @OneToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "comune_id", nullable = false)
     private Comune comune;
 }

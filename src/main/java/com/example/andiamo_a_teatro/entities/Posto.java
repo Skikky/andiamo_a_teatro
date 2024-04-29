@@ -22,7 +22,7 @@ public class Posto {
     @Column(nullable = false)
     @Check(constraints = "numero > 0")
     private Integer numero;
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "sala_id", nullable = false)
     private Sala sala;
 }

@@ -1,6 +1,6 @@
 package com.example.andiamo_a_teatro.controllers;
 
-import com.example.andiamo_a_teatro.entities.Biglietto;
+import com.example.andiamo_a_teatro.entities.Recensione;
 import com.example.andiamo_a_teatro.entities.Utente;
 import com.example.andiamo_a_teatro.response.BigliettoResponse;
 import com.example.andiamo_a_teatro.response.UtenteResponse;
@@ -52,5 +52,20 @@ public class UtenteController {
     @DeleteMapping("/delete/{id}")
     public void deleteUtenteById(@PathVariable Long id) {
         utenteService.deleteUtenteById(id);
+    }
+
+    @PostMapping("/scriviRecensione/{id}")
+    public ResponseEntity<?> scriviRecensione(@RequestBody Recensione newRecensione, @PathVariable Long utenteId) {
+        try {
+            Recensione recensione = utenteService.scriviRecensione(
+                    utenteId,
+                    newRecensione.getSpettacolo().getId(),
+                    newRecensione.getTesto(),
+                    newRecensione.getVoto()
+            );
+            return ResponseEntity.ok(recensione);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Errore nella creazione della recensione: " + e.getMessage());
+        }
     }
 }

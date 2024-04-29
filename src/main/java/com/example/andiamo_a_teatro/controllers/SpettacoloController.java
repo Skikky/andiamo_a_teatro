@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -14,6 +15,21 @@ import java.util.List;
 public class SpettacoloController {
     @Autowired
     private SpettacoloService spettacoloService;
+
+    @GetMapping("/ricerca")
+    public ResponseEntity<List<Spettacolo>> searchSpettacoli(
+            @RequestParam(value = "idGenere", required = false) Long idGenere,
+            @RequestParam(value = "idComune", required = false) Long idComune,
+            @RequestParam(value = "isOpen", required = false) Boolean isOpen,
+            @RequestParam(value = "dataInizio", required = false) String dataInizio,
+            @RequestParam(value = "dataFine", required = false) String dataFine) {
+
+        LocalDateTime start = dataInizio != null ? LocalDateTime.parse(dataInizio) : null;
+        LocalDateTime end = dataFine != null ? LocalDateTime.parse(dataFine) : null;
+
+        List<Spettacolo> spettacoli = spettacoloService.searchSpettacoli(idGenere, idComune, isOpen, start, end);
+        return ResponseEntity.ok(spettacoli);
+    }
 
     @GetMapping("/get/{id}")
     public ResponseEntity<Spettacolo> getSpettacoloById(@PathVariable Long id) {
