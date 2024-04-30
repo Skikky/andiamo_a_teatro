@@ -1,6 +1,7 @@
 package com.example.andiamo_a_teatro.controllers;
 
 import com.example.andiamo_a_teatro.entities.Genere;
+import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import com.example.andiamo_a_teatro.services.GenereService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,7 @@ public class GenereController {
     private GenereService genereService;
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<Genere> getGenereById(@PathVariable Long id) {
+    public ResponseEntity<Genere> getGenereById(@PathVariable Long id) throws EntityNotFoundException {
         return ResponseEntity.ok(genereService.getGenereById(id));
     }
 
@@ -31,12 +32,12 @@ public class GenereController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Genere> updateGenere(@PathVariable Long id, @RequestBody Genere newGenere) {
+    public ResponseEntity<Genere> updateGenere(@PathVariable Long id, @RequestBody Genere newGenere) throws EntityNotFoundException {
         return ResponseEntity.ok(genereService.updateGenere(id, newGenere));
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deleteGenereById(@PathVariable Long id) {
+    public void deleteGenereById(@PathVariable Long id) throws EntityNotFoundException {
         genereService.deleteGenereById(id);
     }
 }

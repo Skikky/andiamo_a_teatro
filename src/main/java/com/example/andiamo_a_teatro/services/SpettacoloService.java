@@ -1,7 +1,9 @@
 package com.example.andiamo_a_teatro.services;
 
 import com.example.andiamo_a_teatro.entities.Spettacolo;
+import com.example.andiamo_a_teatro.exception.NoSpettacoliFoundException;
 import com.example.andiamo_a_teatro.repositories.SpettacoloRepository;
+import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -15,11 +17,16 @@ public class SpettacoloService {
     @Autowired
     private SpettacoloRepository spettacoloRepository;
 
-    public List<Spettacolo> searchSpettacoli(Long idGenere, Long idComune, Boolean isOpen, LocalDateTime dataInizio, LocalDateTime dataFine) {
+    public List<Spettacolo> searchSpettacoli(Long idGenere, Long idComune, Boolean isOpen, LocalDateTime dataInizio, LocalDateTime dataFine) throws NoSpettacoliFoundException {
         Specification<Spettacolo> spec = Specification.where(hasGenere(idGenere))
                 .and(inComune(idComune))
                 .and(isOpen(isOpen))
                 .and(betweenDates(dataInizio, dataFine));
+
+        List<Spettacolo> spettacoli = spettacoloRepository.findAll(spec);
+        if (spettacoli.isEmpty()) {
+            throw new NoSpettacoliFoundException();
+        }
         return spettacoloRepository.findAll(spec);
     }
 
@@ -49,9 +56,9 @@ public class SpettacoloService {
         };
     }
 
-    public Spettacolo getSpettacoloById(Long id) {
+    public Spettacolo getSpettacoloById(Long id) throws EntityNotFoundException {
         Optional<Spettacolo> optionalSpettacolo = spettacoloRepository.findById(id);
-        return optionalSpettacolo.orElseThrow(() -> new RuntimeException("Spettacolo non trovato con id: " + id));
+        return optionalSpettacolo.orElseThrow(() -> new EntityNotFoundException(id, "Spettacolo"));
     }
 
     public List<Spettacolo> getAllSpettacoli() {
@@ -62,7 +69,9 @@ public class SpettacoloService {
         return spettacoloRepository.saveAndFlush(spettacolo);
     }
 
-    public Spettacolo updateSpettacolo(Long id, Spettacolo newSpettacolo) {
+    public Spettacolo updateSpettacolo(Long id, Spettacolo newSpettacolo) throws EntityNotFoundException {
+        spettacoloRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(id, "Spettacolo"));
         Spettacolo spettacolo = Spettacolo.builder()
                 .id(id)
                 .nome(newSpettacolo.getNome())
@@ -76,7 +85,9 @@ public class SpettacoloService {
         return spettacolo;
     }
 
-    public void deleteSpettacoloById(Long id) {
+    public void deleteSpettacoloById(Long id) throws EntityNotFoundException {
+        spettacoloRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(id, "Spettacolo"));
         spettacoloRepository.deleteById(id);
     }
 }

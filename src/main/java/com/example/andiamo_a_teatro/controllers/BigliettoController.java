@@ -1,5 +1,6 @@
 package com.example.andiamo_a_teatro.controllers;
 
+import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import com.example.andiamo_a_teatro.request.BigliettoRequest;
 import com.example.andiamo_a_teatro.response.BigliettoResponse;
 import com.example.andiamo_a_teatro.services.BigliettoService;
@@ -16,7 +17,7 @@ public class BigliettoController {
     private BigliettoService bigliettoService;
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<BigliettoResponse> getBigliettoById(@PathVariable Long id) {
+    public ResponseEntity<BigliettoResponse> getBigliettoById(@PathVariable Long id) throws EntityNotFoundException {
         return ResponseEntity.ok(bigliettoService.getBigliettoById(id));
     }
 
@@ -26,17 +27,17 @@ public class BigliettoController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<BigliettoResponse> createBiglietto(@RequestBody BigliettoRequest bigliettoRequest) {
+    public ResponseEntity<BigliettoResponse> createBiglietto(@RequestBody BigliettoRequest bigliettoRequest) throws EntityNotFoundException {
         return ResponseEntity.ok(bigliettoService.createBiglietto(bigliettoRequest));
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<BigliettoResponse> updateBiglietto(@PathVariable Long id, @RequestBody BigliettoResponse bigliettoResponse) {
+    public ResponseEntity<BigliettoResponse> updateBiglietto(@PathVariable Long id, @RequestBody BigliettoResponse bigliettoResponse) throws EntityNotFoundException {
         return ResponseEntity.ok(bigliettoService.updateBiglietto(id, bigliettoResponse));
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deleteBigliettoById(@PathVariable Long id) {
+    public void deleteBigliettoById(@PathVariable Long id) throws  EntityNotFoundException {
         bigliettoService.deleteBigliettoById(id);
     }
 }

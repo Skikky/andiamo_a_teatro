@@ -1,6 +1,7 @@
 package com.example.andiamo_a_teatro.controllers;
 
 import com.example.andiamo_a_teatro.entities.Comune;
+import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import com.example.andiamo_a_teatro.services.ComuneService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class ComuneController {
     private ComuneService comuneService;
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<Comune> getComuneById(@PathVariable Long id) {
+    public ResponseEntity<Comune> getComuneById(@PathVariable Long id) throws EntityNotFoundException {
         return ResponseEntity.ok(comuneService.getComuneById(id));
     }
 
@@ -32,12 +33,12 @@ public class ComuneController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Comune> updateComune(@PathVariable Long id, @RequestBody Comune newComune) {
+    public ResponseEntity<Comune> updateComune(@PathVariable Long id, @RequestBody Comune newComune) throws EntityNotFoundException {
         return ResponseEntity.ok(comuneService.updateComune(id, newComune));
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deleteComuneById(@PathVariable Long id) {
+    public void deleteComuneById(@PathVariable Long id) throws EntityNotFoundException {
         comuneService.deleteComuneById(id);
     }
 }

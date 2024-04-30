@@ -4,6 +4,10 @@ import com.example.andiamo_a_teatro.entities.Biglietto;
 import com.example.andiamo_a_teatro.entities.Recensione;
 import com.example.andiamo_a_teatro.entities.Spettacolo;
 import com.example.andiamo_a_teatro.entities.Utente;
+import com.example.andiamo_a_teatro.exception.BigliettoNonDisponibileException;
+import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
+import com.example.andiamo_a_teatro.exception.PoveroException;
+import com.example.andiamo_a_teatro.exception.SpettacoloNonVistoException;
 import com.example.andiamo_a_teatro.repositories.BigliettoRepository;
 import com.example.andiamo_a_teatro.repositories.RecensioneRepository;
 import com.example.andiamo_a_teatro.repositories.SpettacoloRepository;
@@ -14,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -100,15 +105,15 @@ public class UtenteService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public BigliettoResponse acquistaBiglietto(Long utenteId, Long bigliettoId) throws IllegalArgumentException {
+    public BigliettoResponse acquistaBiglietto(Long utenteId, Long bigliettoId) throws PoveroException, BigliettoNonDisponibileException, EntityNotFoundException {
         Utente utente = utenteRepository.findById(utenteId)
-                .orElseThrow(() -> new IllegalArgumentException("Utente non trovato con ID: " + utenteId));
+                .orElseThrow(() -> new EntityNotFoundException(utenteId,"Utente"));
 
         Biglietto biglietto = bigliettoRepository.findById(bigliettoId)
-                .orElseThrow(() -> new IllegalArgumentException("Biglietto non trovato con ID: " + bigliettoId));
+                .orElseThrow(() -> new EntityNotFoundException(bigliettoId,"Biglietto"));
 
         if (biglietto.getUtente() != null) {
-            throw new IllegalArgumentException("Il biglietto è già stato acquistato.");
+            throw new BigliettoNonDisponibileException();
         }
 
         double prezzoBiglietto = biglietto.getSpettacolo().getPrezzo();
@@ -124,13 +129,13 @@ public class UtenteService {
 
             return mapToBigliettoResponse(biglietto);
         } else {
-            throw new IllegalArgumentException("L'utente non ha abbastanza soldi per acquistare il biglietto.");
+            throw new PoveroException();
         }
     }
 
-    public UtenteResponse getUtenteById(Long id) {
+    public UtenteResponse getUtenteById(Long id) throws EntityNotFoundException {
         Utente utente = utenteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Utente non trovato con id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(id,"Utente"));
 
         return mapToUtenteResponse(utente);
     }
@@ -160,26 +165,38 @@ public class UtenteService {
         return mapToUtenteResponse(utente);
     }
 
-    public void deleteUtenteById(Long id) {
+    public void deleteUtenteById(Long id) throws EntityNotFoundException {
+        utenteRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(id,"Utente"));
         utenteRepository.deleteById(id);
     }
 
-    public Recensione scriviRecensione(Long utenteId, Long spettacoloId, String testo, int voto) {
-        Optional<Utente> utente = utenteRepository.findById(utenteId);
-        if (utente.isEmpty()) {
-            throw new IllegalArgumentException("Utente non trovato con id: " + utenteId);
+    public Recensione scriviRecensione(Long utenteId, Long spettacoloId, String testo, int voto) throws SpettacoloNonVistoException, EntityNotFoundException {
+        Optional<Utente> optionalUtente = utenteRepository.findById(utenteId);
+        if (optionalUtente.isEmpty()) {
+            throw new EntityNotFoundException(utenteId, "utente");
         }
+        Utente utente = optionalUtente.get();
 
-        Optional<Spettacolo> spettacolo = spettacoloRepository.findById(spettacoloId);
-        if (spettacolo.isEmpty()) {
-            throw new IllegalArgumentException("Utente non trovato con id: " + spettacoloId);
+        Optional<Spettacolo> optionalSpettacolo = spettacoloRepository.findById(spettacoloId);
+        if (optionalSpettacolo.isEmpty()) {
+            throw new EntityNotFoundException(spettacoloId,"Spettacolo");
+        }
+        Spettacolo spettacolo = optionalSpettacolo.get();
+
+        boolean visto = utente.getBigliettiUtente().stream()
+                .anyMatch(biglietto -> biglietto.getSpettacolo().getId().equals(spettacoloId)
+                        && biglietto.getSpettacolo().getOrario().isBefore(LocalDateTime.now().minusMinutes(10)));
+
+        if (!visto) {
+            throw new SpettacoloNonVistoException();
         }
 
         Recensione recensione = Recensione.builder()
                 .testo(testo)
                 .voto(voto)
-                .spettacolo(spettacolo.get())
-                .utente(utente.get())
+                .spettacolo(spettacolo)
+                .utente(utente)
                 .build();
 
         return recensioneRepository.saveAndFlush(recensione);

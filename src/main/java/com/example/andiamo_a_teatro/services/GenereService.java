@@ -1,6 +1,7 @@
 package com.example.andiamo_a_teatro.services;
 
 import com.example.andiamo_a_teatro.entities.Genere;
+import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import com.example.andiamo_a_teatro.repositories.GenereRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,9 +14,9 @@ public class GenereService {
     @Autowired
     private GenereRepository genereRepository;
 
-    public Genere getGenereById(Long id) {
+    public Genere getGenereById(Long id) throws EntityNotFoundException {
         Optional<Genere> optionalGenere = genereRepository.findById(id);
-        return optionalGenere.orElseThrow(() -> new RuntimeException("Genere non trovato con id: " + id));
+        return optionalGenere.orElseThrow(() -> new EntityNotFoundException(id,"Genere"));
     }
 
     public List<Genere> getAllGeneri() {
@@ -26,7 +27,9 @@ public class GenereService {
         return genereRepository.saveAndFlush(genere);
     }
 
-    public Genere updateGenere(Long id, Genere newGenere) {
+    public Genere updateGenere(Long id, Genere newGenere) throws EntityNotFoundException {
+        genereRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(id, "Genere"));
         Genere genere = Genere.builder()
                 .id(id)
                 .nome(newGenere.getNome())
@@ -35,7 +38,9 @@ public class GenereService {
         return genere;
     }
 
-    public void deleteGenereById(Long id) {
+    public void deleteGenereById(Long id) throws EntityNotFoundException {
+        genereRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(id, "Genere"));
         genereRepository.deleteById(id);
     }
 }

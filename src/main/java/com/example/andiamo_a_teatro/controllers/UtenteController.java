@@ -2,9 +2,12 @@ package com.example.andiamo_a_teatro.controllers;
 
 import com.example.andiamo_a_teatro.entities.Recensione;
 import com.example.andiamo_a_teatro.entities.Utente;
+import com.example.andiamo_a_teatro.exception.BigliettoNonDisponibileException;
+import com.example.andiamo_a_teatro.exception.PoveroException;
 import com.example.andiamo_a_teatro.response.BigliettoResponse;
 import com.example.andiamo_a_teatro.response.UtenteResponse;
 import com.example.andiamo_a_teatro.services.UtenteService;
+import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +22,7 @@ public class UtenteController {
     private UtenteService utenteService;
 
     @PostMapping("/{utenteId}/acquista-biglietto/{bigliettoId}")
-    public ResponseEntity<?> acquistaBiglietto(@PathVariable Long utenteId, @PathVariable Long bigliettoId) {
+    public ResponseEntity<?> acquistaBiglietto(@PathVariable Long utenteId, @PathVariable Long bigliettoId) throws PoveroException, BigliettoNonDisponibileException, EntityNotFoundException {
         try {
             BigliettoResponse biglietto = utenteService.acquistaBiglietto(utenteId, bigliettoId);
             return ResponseEntity.ok("Biglietto acquistato con successo per l'utente con ID: " + utenteId);
@@ -30,7 +33,7 @@ public class UtenteController {
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<UtenteResponse> getUtenteById(@PathVariable Long id) {
+    public ResponseEntity<UtenteResponse> getUtenteById(@PathVariable Long id) throws EntityNotFoundException {
         return ResponseEntity.ok(utenteService.getUtenteById(id));
     }
 
@@ -50,7 +53,7 @@ public class UtenteController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deleteUtenteById(@PathVariable Long id) {
+    public void deleteUtenteById(@PathVariable Long id) throws EntityNotFoundException {
         utenteService.deleteUtenteById(id);
     }
 

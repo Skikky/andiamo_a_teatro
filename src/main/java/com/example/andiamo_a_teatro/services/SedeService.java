@@ -2,6 +2,7 @@ package com.example.andiamo_a_teatro.services;
 
 import com.example.andiamo_a_teatro.entities.Sede;
 import com.example.andiamo_a_teatro.repositories.SedeRepository;
+import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +14,9 @@ public class SedeService {
     @Autowired
     private SedeRepository sedeRepository;
 
-    public Sede getSedeById(Long id) {
+    public Sede getSedeById(Long id) throws EntityNotFoundException {
         Optional<Sede> optionalSede = sedeRepository.findById(id);
-        return optionalSede.orElseThrow(() -> new RuntimeException("Sede non trovato con id: " + id));
+        return optionalSede.orElseThrow(() -> new EntityNotFoundException(id,"Sede"));
     }
 
     public List<Sede> getAllSedi() {
@@ -26,7 +27,9 @@ public class SedeService {
         return sedeRepository.saveAndFlush(utente);
     }
 
-    public Sede updateSede(Long id, Sede newSede) {
+    public Sede updateSede(Long id, Sede newSede) throws EntityNotFoundException {
+        sedeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(id, "Sede"));
         Sede sede = Sede.builder()
                 .id(id)
                 .nome(newSede.getNome())
@@ -38,7 +41,9 @@ public class SedeService {
         return sede;
     }
 
-    public void deleteSedeById(Long id) {
+    public void deleteSedeById(Long id) throws EntityNotFoundException {
+        sedeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(id, "Sede"));
         sedeRepository.deleteById(id);
     }
 }

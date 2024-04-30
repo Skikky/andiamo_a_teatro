@@ -4,6 +4,7 @@ import com.example.andiamo_a_teatro.entities.Biglietto;
 import com.example.andiamo_a_teatro.entities.Posto;
 import com.example.andiamo_a_teatro.entities.Spettacolo;
 import com.example.andiamo_a_teatro.entities.Utente;
+import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import com.example.andiamo_a_teatro.repositories.BigliettoRepository;
 import com.example.andiamo_a_teatro.repositories.PostoRepository;
 import com.example.andiamo_a_teatro.repositories.SpettacoloRepository;
@@ -29,19 +30,19 @@ public class BigliettoService {
     @Autowired
     private UtenteRepository utenteRepository;
 
-    private Utente mapToUtente(Long utenteId) {
+    private Utente mapToUtente(Long utenteId) throws EntityNotFoundException {
         return utenteRepository.findById(utenteId)
-                .orElseThrow(() -> new RuntimeException("Utente non trovato con id: " + utenteId));
+                .orElseThrow(() -> new EntityNotFoundException(utenteId, "Utente"));
     }
 
-    private Spettacolo mapToSpettacolo(Long spettacoloId) {
+    private Spettacolo mapToSpettacolo(Long spettacoloId) throws EntityNotFoundException {
         return spettacoloRepository.findById(spettacoloId)
-                .orElseThrow(() -> new RuntimeException("Spettacolo non trovato con id: " + spettacoloId));
+                .orElseThrow(() -> new EntityNotFoundException(spettacoloId, "Spettacolo"));
     }
 
-    private Posto mapToPosto(Long postoId) {
+    private Posto mapToPosto(Long postoId) throws EntityNotFoundException {
         return postoRepository.findById(postoId)
-                .orElseThrow(() -> new RuntimeException("Posto non trovato con id: " + postoId));
+                .orElseThrow(() -> new EntityNotFoundException(postoId, "Posto"));
     }
 
     private BigliettoResponse mapBigliettoToResponse(Biglietto biglietto) {
@@ -55,9 +56,9 @@ public class BigliettoService {
                 .build();
     }
 
-    public BigliettoResponse getBigliettoById(Long id) {
+    public BigliettoResponse getBigliettoById(Long id) throws EntityNotFoundException {
         Biglietto biglietto = bigliettoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Biglietto non trovato con id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(id, "Biglietto"));
         return mapBigliettoToResponse(biglietto);
     }
 
@@ -73,7 +74,7 @@ public class BigliettoService {
         return bigliettiDTO;
     }
 
-    public BigliettoResponse createBiglietto(BigliettoRequest bigliettoRequest) {
+    public BigliettoResponse createBiglietto(BigliettoRequest bigliettoRequest) throws EntityNotFoundException{
         Spettacolo spettacolo = mapToSpettacolo(bigliettoRequest.getId_spettacolo());
         Posto posto = mapToPosto(bigliettoRequest.getId_posto());
         Biglietto biglietto = Biglietto.builder()
@@ -85,7 +86,11 @@ public class BigliettoService {
         return mapBigliettoToResponse(biglietto);
     }
 
-    public BigliettoResponse updateBiglietto(Long id, BigliettoResponse bigliettoResponse) {
+    public BigliettoResponse updateBiglietto(Long id, BigliettoResponse bigliettoResponse) throws EntityNotFoundException {
+
+        bigliettoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(id, "Biglietto"));
+
         Utente utente = mapToUtente(bigliettoResponse.getId_utente());
         Spettacolo spettacolo = mapToSpettacolo(bigliettoResponse.getId_spettacolo());
         Posto posto = mapToPosto(bigliettoResponse.getId_posto());
@@ -100,7 +105,9 @@ public class BigliettoService {
         return mapBigliettoToResponse(biglietto);
     }
 
-    public void deleteBigliettoById(Long id) {
+    public void deleteBigliettoById(Long id) throws EntityNotFoundException {
+        bigliettoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(id, "Biglietto"));
         bigliettoRepository.deleteById(id);
     }
 }

@@ -1,6 +1,8 @@
 package com.example.andiamo_a_teatro.controllers;
 
 import com.example.andiamo_a_teatro.entities.Spettacolo;
+import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
+import com.example.andiamo_a_teatro.exception.NoSpettacoliFoundException;
 import com.example.andiamo_a_teatro.services.SpettacoloService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +24,7 @@ public class SpettacoloController {
             @RequestParam(value = "idComune", required = false) Long idComune,
             @RequestParam(value = "isOpen", required = false) Boolean isOpen,
             @RequestParam(value = "dataInizio", required = false) String dataInizio,
-            @RequestParam(value = "dataFine", required = false) String dataFine) {
+            @RequestParam(value = "dataFine", required = false) String dataFine) throws NoSpettacoliFoundException {
 
         LocalDateTime start = dataInizio != null ? LocalDateTime.parse(dataInizio) : null;
         LocalDateTime end = dataFine != null ? LocalDateTime.parse(dataFine) : null;
@@ -32,7 +34,7 @@ public class SpettacoloController {
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<Spettacolo> getSpettacoloById(@PathVariable Long id) {
+    public ResponseEntity<Spettacolo> getSpettacoloById(@PathVariable Long id) throws EntityNotFoundException {
         return ResponseEntity.ok(spettacoloService.getSpettacoloById(id));
     }
 
@@ -47,12 +49,12 @@ public class SpettacoloController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Spettacolo> updateSpettacolo(@PathVariable Long id, @RequestBody Spettacolo newSpettacolo) {
+    public ResponseEntity<Spettacolo> updateSpettacolo(@PathVariable Long id, @RequestBody Spettacolo newSpettacolo) throws EntityNotFoundException {
         return ResponseEntity.ok(spettacoloService.updateSpettacolo(id, newSpettacolo));
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deleteSpettacoloById(@PathVariable Long id) {
+    public void deleteSpettacoloById(@PathVariable Long id) throws EntityNotFoundException {
         spettacoloService.deleteSpettacoloById(id);
     }
 }

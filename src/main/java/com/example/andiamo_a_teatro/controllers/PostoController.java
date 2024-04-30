@@ -1,6 +1,7 @@
 package com.example.andiamo_a_teatro.controllers;
 
 import com.example.andiamo_a_teatro.entities.Posto;
+import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import com.example.andiamo_a_teatro.services.PostoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,7 @@ public class PostoController {
     private PostoService postoService;
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<Posto> getPostoById(@PathVariable Long id) {
+    public ResponseEntity<Posto> getPostoById(@PathVariable Long id) throws EntityNotFoundException {
         return ResponseEntity.ok(postoService.getPostiById(id));
     }
 
@@ -31,12 +32,12 @@ public class PostoController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Posto> updatePosto(@PathVariable Long id, @RequestBody Posto newPosto) {
+    public ResponseEntity<Posto> updatePosto(@PathVariable Long id, @RequestBody Posto newPosto) throws EntityNotFoundException {
         return ResponseEntity.ok(postoService.updatePosto(id, newPosto));
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deletePostoById(@PathVariable Long id) {
+    public void deletePostoById(@PathVariable Long id) throws EntityNotFoundException {
         postoService.deletePostoById(id);
     }
 }
