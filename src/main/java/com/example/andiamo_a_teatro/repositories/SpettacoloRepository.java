@@ -26,4 +26,3 @@ public interface SpettacoloRepository extends JpaRepository<Spettacolo, Long> {
                                              @Param("dataFine") LocalDateTime dataFine);
 }
      */
-

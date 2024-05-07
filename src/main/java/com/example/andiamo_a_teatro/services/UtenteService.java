@@ -159,7 +159,6 @@ public class UtenteService {
                 .telefono(newUtente.getTelefono())
                 .nascita(newUtente.getNascita())
                 .password(newUtente.getPassword())
-                .isLoggato(newUtente.getIsLoggato())
                 .build();
         utenteRepository.saveAndFlush(utente);
         return mapToUtenteResponse(utente);
@@ -186,7 +185,7 @@ public class UtenteService {
 
         boolean visto = utente.getBigliettiUtente().stream()
                 .anyMatch(biglietto -> biglietto.getSpettacolo().getId().equals(spettacoloId)
-                        && biglietto.getSpettacolo().getOrario().isBefore(LocalDateTime.now().minusMinutes(10)));
+                        && biglietto.getSpettacolo().getOrario().isBefore(LocalDateTime.now()));
 
         if (!visto) {
             throw new SpettacoloNonVistoException();
