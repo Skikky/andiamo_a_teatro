@@ -144,11 +144,6 @@ public class UtenteService {
         return utenteRepository.findAll().stream().map(this::mapToUtenteResponse).toList();
     }
 
-    public UtenteResponse createUtente(Utente utente) {
-        utenteRepository.saveAndFlush(utente);
-        return mapToUtenteResponse(utente);
-    }
-
     public UtenteResponse updateUtente(Long id, Utente newUtente) {
         Utente utente = Utente.builder()
                 .id(id)

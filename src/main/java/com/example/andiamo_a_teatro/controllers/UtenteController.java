@@ -42,11 +42,6 @@ public class UtenteController {
         return ResponseEntity.ok(utenteService.getAllUtenti());
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<UtenteResponse> createUtente(@RequestBody Utente utente) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(utenteService.createUtente(utente));
-    }
-
     @PutMapping("/update/{id}")
     public ResponseEntity<UtenteResponse> updateUtente(@PathVariable Long id, @RequestBody Utente newUtente) {
         return ResponseEntity.ok(utenteService.updateUtente(id, newUtente));
