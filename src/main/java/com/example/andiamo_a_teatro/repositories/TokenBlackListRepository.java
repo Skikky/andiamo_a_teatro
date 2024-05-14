@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface TokenBlackListRepository extends JpaRepository<TokenBlackList, Long> {
 
-    @Query(value = "SELECT * FROM token_black_list WHERE cliente_id = :id_cliente", nativeQuery = true)
-    List<TokenBlackList> getTokenBlackListFromClienteId(@Param("id_cliente") Long id_cliente);
+    @Query(value = "SELECT * FROM token_black_list WHERE utente_id = :utente_id", nativeQuery = true)
+    List<TokenBlackList> getTokenBlackListFromUtenteId(@Param("utente_id") Long utente_id);
 
 }

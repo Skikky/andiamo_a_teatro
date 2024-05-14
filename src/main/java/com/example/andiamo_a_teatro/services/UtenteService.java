@@ -4,6 +4,7 @@ import com.example.andiamo_a_teatro.entities.Biglietto;
 import com.example.andiamo_a_teatro.entities.Recensione;
 import com.example.andiamo_a_teatro.entities.Spettacolo;
 import com.example.andiamo_a_teatro.entities.Utente;
+import com.example.andiamo_a_teatro.enums.Role;
 import com.example.andiamo_a_teatro.exception.BigliettoNonDisponibileException;
 import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import com.example.andiamo_a_teatro.exception.PoveroException;
@@ -196,4 +197,9 @@ public class UtenteService {
         return recensioneRepository.saveAndFlush(recensione);
     }
 
+    public void updateRole(Long id, String new_role) throws EntityNotFoundException {
+        Utente utente = utenteRepository.getReferenceById(id);
+        utente.setRole(Role.valueOf(new_role));
+        utenteRepository.saveAndFlush(utente);
+    }
 }

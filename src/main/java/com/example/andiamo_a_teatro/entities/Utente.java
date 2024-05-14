@@ -1,9 +1,11 @@
 package com.example.andiamo_a_teatro.entities;
 
+import com.example.andiamo_a_teatro.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Check;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
@@ -42,6 +44,9 @@ public class Utente implements UserDetails {
     private Double saldo;
     @Column(nullable = false)
     private String registrationToken;
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Role role;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "utente", cascade = CascadeType.ALL)
     private List<Biglietto> bigliettiUtente;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "utente", cascade = CascadeType.ALL)
@@ -49,7 +54,7 @@ public class Utente implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override

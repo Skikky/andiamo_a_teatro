@@ -2,6 +2,7 @@ package com.example.andiamo_a_teatro.security;
 
 import com.example.andiamo_a_teatro.entities.TokenBlackList;
 import com.example.andiamo_a_teatro.entities.Utente;
+import com.example.andiamo_a_teatro.enums.Role;
 import com.example.andiamo_a_teatro.repositories.UtenteRepository;
 import com.example.andiamo_a_teatro.request.AuthenticationRequest;
 import com.example.andiamo_a_teatro.request.RegistrationRequest;
@@ -11,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -37,6 +39,7 @@ public class AuthenticationService {
                 .telefono(registrationRequest.getTelefono())
                 .saldo(registrationRequest.getSaldo())
                 .email(registrationRequest.getEmail())
+                .role(Role.USER)
                 .password(passwordEncoder.encode(registrationRequest.getPassword()))
                 .build();
         var jwtToken = jwtService.generateToken(user);
@@ -52,6 +55,15 @@ public class AuthenticationService {
         ));
         var user = utenteRepository.findUtenteByEmail(authenticationRequest.getEmail());
         var jwtToken = jwtService.generateToken(user);
+        if (tokenBlackListService.tokenNotValidFromUtenteById(user.getId()).contains(jwtToken)) {
+            String email = jwtService.extractUsername(jwtToken);
+            // Carica l'utente dal database
+            UserDetails userDetails = utenteRepository.findUtenteByEmail(email);
+
+            // Genera un nuovo token con le informazioni aggiornate
+            String newToken = jwtService.generateToken(userDetails);
+            return AuthenticationResponse.builder().token(newToken).build();
+        }
         return AuthenticationResponse.builder().token(jwtToken).build();
     }
 

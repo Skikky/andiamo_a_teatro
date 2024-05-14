@@ -11,11 +11,13 @@ import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@Secured("USER")
 @RequestMapping("/utente")
 public class UtenteController {
     @Autowired
@@ -37,6 +39,7 @@ public class UtenteController {
         return ResponseEntity.ok(utenteService.getUtenteById(id));
     }
 
+    @Secured({"SUPERADMIN", "ADMIN"})
     @GetMapping("/all")
     public ResponseEntity<List<UtenteResponse>> getAllUtenti() {
         return ResponseEntity.ok(utenteService.getAllUtenti());
@@ -65,5 +68,12 @@ public class UtenteController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Errore nella creazione della recensione: " + e.getMessage());
         }
+    }
+
+    @PutMapping("/update/role")
+    @Secured("SUPERADMIN")
+    public ResponseEntity<String> updateRole(@RequestParam Long id, @RequestParam String new_role) throws EntityNotFoundException {
+        utenteService.updateRole(id, new_role);
+        return new ResponseEntity<>("Ruolo aggiornato con successo", HttpStatus.CREATED);
     }
 }
