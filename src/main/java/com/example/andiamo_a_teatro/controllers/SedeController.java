@@ -6,11 +6,13 @@ import com.example.andiamo_a_teatro.services.SedeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@Secured("USER")
 @RequestMapping("/sede")
 public class SedeController {
     @Autowired
@@ -26,16 +28,19 @@ public class SedeController {
         return ResponseEntity.ok(sedeService.getAllSedi());
     }
 
+    @Secured("ADMIN")
     @PostMapping("/create")
     public ResponseEntity<Sede> createSede(@RequestBody Sede sede) {
         return ResponseEntity.status(HttpStatus.CREATED).body(sedeService.createSede(sede));
     }
 
+    @Secured("ADMIN")
     @PutMapping("/update/{id}")
     public ResponseEntity<Sede> updateSede(@PathVariable Long id, @RequestBody Sede newSede) throws EntityNotFoundException{
         return ResponseEntity.ok(sedeService.updateSede(id, newSede));
     }
 
+    @Secured("ADMIN")
     @DeleteMapping("/delete/{id}")
     public void deleteSedeById(@PathVariable Long id) throws EntityNotFoundException{
         sedeService.deleteSedeById(id);

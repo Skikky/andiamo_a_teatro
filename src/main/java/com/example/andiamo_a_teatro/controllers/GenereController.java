@@ -6,21 +6,25 @@ import com.example.andiamo_a_teatro.services.GenereService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@Secured("SUPERADMIN")
 @RequestMapping("/genere")
 public class GenereController {
     @Autowired
     private GenereService genereService;
 
+    @Secured("USER")
     @GetMapping("/get/{id}")
     public ResponseEntity<Genere> getGenereById(@PathVariable Long id) throws EntityNotFoundException {
         return ResponseEntity.ok(genereService.getGenereById(id));
     }
 
+    @Secured("USER")
     @GetMapping("/all")
     public ResponseEntity<List<Genere>> getAllGeneri() {
         return ResponseEntity.ok(genereService.getAllGeneri());

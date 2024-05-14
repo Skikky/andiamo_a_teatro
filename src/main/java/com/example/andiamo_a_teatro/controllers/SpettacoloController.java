@@ -7,12 +7,14 @@ import com.example.andiamo_a_teatro.services.SpettacoloService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
+@Secured("USER")
 @RequestMapping("spettacolo")
 public class SpettacoloController {
     @Autowired
@@ -43,16 +45,19 @@ public class SpettacoloController {
         return ResponseEntity.ok(spettacoloService.getAllSpettacoli());
     }
 
+    @Secured("ADMIN")
     @PostMapping("/create")
     public ResponseEntity<Spettacolo> createSpettacolo(@RequestBody Spettacolo spettacolo) {
         return ResponseEntity.status(HttpStatus.CREATED).body(spettacoloService.createSpettacolo(spettacolo));
     }
 
+    @Secured("ADMIN")
     @PutMapping("/update/{id}")
     public ResponseEntity<Spettacolo> updateSpettacolo(@PathVariable Long id, @RequestBody Spettacolo newSpettacolo) throws EntityNotFoundException {
         return ResponseEntity.ok(spettacoloService.updateSpettacolo(id, newSpettacolo));
     }
 
+    @Secured("ADMIN")
     @DeleteMapping("/delete/{id}")
     public void deleteSpettacoloById(@PathVariable Long id) throws EntityNotFoundException {
         spettacoloService.deleteSpettacoloById(id);

@@ -6,16 +6,19 @@ import com.example.andiamo_a_teatro.response.BigliettoResponse;
 import com.example.andiamo_a_teatro.services.BigliettoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@Secured("ADMIN")
 @RequestMapping("/biglietto")
 public class BigliettoController {
     @Autowired
     private BigliettoService bigliettoService;
 
+    @Secured("USER")
     @GetMapping("/get/{id}")
     public ResponseEntity<BigliettoResponse> getBigliettoById(@PathVariable Long id) throws EntityNotFoundException {
         return ResponseEntity.ok(bigliettoService.getBigliettoById(id));

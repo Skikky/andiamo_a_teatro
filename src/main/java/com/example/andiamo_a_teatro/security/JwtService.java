@@ -1,6 +1,7 @@
 package com.example.andiamo_a_teatro.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -56,10 +57,38 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token) {
+        try {
+            // Parse del token per ottenere il corpo (payload)
+            Claims claims = Jwts.parser()
+                    .setSigningKey(SECRET_KEY) // Chiave segreta utilizzata per firmare il token
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            // Verifica se il token è scaduto
+            return !claims.getExpiration().before(new Date());
+        } catch (ExpiredJwtException ex) {
+            // Se il token è scaduto, consideralo non valido
+            return false;
+        }
+    }
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    public String getUserEmailFromToken(String token) {
+        // Parse del token per ottenere il corpo (payload)
         Claims claims = Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(SECRET_KEY) // Chiave segreta utilizzata per firmare il token
                 .parseClaimsJws(token)
                 .getBody();
-        return !claims.getExpiration().before(new Date(System.currentTimeMillis()));
+
+        // Estrai l'ID utente dal corpo del token
+        String email = claims.getSubject();
+
+        return email;
     }
 }

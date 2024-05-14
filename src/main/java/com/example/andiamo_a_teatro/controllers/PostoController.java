@@ -6,16 +6,19 @@ import com.example.andiamo_a_teatro.services.PostoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@Secured("ADMIN")
 @RequestMapping("/posto")
 public class PostoController {
     @Autowired
     private PostoService postoService;
 
+    @Secured("USER")
     @GetMapping("/get/{id}")
     public ResponseEntity<Posto> getPostoById(@PathVariable Long id) throws EntityNotFoundException {
         return ResponseEntity.ok(postoService.getPostiById(id));

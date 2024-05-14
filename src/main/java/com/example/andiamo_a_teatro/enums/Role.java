@@ -1,5 +1,5 @@
 package com.example.andiamo_a_teatro.enums;
 
-public class Role {
-
+public enum Role {
+    SUPERADMIN, ADMIN, USER;
 }

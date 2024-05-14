@@ -12,8 +12,8 @@ public class TokenBlackListService {
     @Autowired
     private TokenBlackListRepository tokenBlackListRepository;
 
-    public List<String> tokenNotValidFromClienteById(Long id_cliente) {
-        return tokenBlackListRepository.getTokenBlackListFromClienteId(id_cliente)
+    public List<String> tokenNotValidFromUtenteById(Long utente_id) {
+        return tokenBlackListRepository.getTokenBlackListFromUtenteId(utente_id)
                 .stream()
                 .map(TokenBlackList::getToken)
                 .toList();
@@ -21,5 +21,9 @@ public class TokenBlackListService {
 
     public void createTokenBlackList(TokenBlackList tokenBlackList) {
         tokenBlackListRepository.saveAndFlush(tokenBlackList);
+    }
+
+    public Boolean isTokenPresent(String token) {
+        return tokenBlackListRepository.findAll().stream().map(TokenBlackList::getToken).toList().contains(token);
     }
 }
