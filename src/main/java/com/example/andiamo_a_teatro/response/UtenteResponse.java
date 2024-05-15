@@ -20,6 +20,7 @@ public class UtenteResponse {
     private LocalDate nascita;
     private String password;
     private Double saldo;
+    private Long id_comune;
     private List<Long> id_biglietto;
     private List<Long> id_recensione;
 }

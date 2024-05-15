@@ -47,6 +47,9 @@ public class Utente implements UserDetails {
     @Column
     @Enumerated(EnumType.STRING)
     private Role role;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comune_id")
+    private Comune comune;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "utente", cascade = CascadeType.ALL)
     private List<Biglietto> bigliettiUtente;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "utente", cascade = CascadeType.ALL)

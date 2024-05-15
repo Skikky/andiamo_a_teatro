@@ -1,18 +1,12 @@
 package com.example.andiamo_a_teatro.services;
 
-import com.example.andiamo_a_teatro.entities.Biglietto;
-import com.example.andiamo_a_teatro.entities.Recensione;
-import com.example.andiamo_a_teatro.entities.Spettacolo;
-import com.example.andiamo_a_teatro.entities.Utente;
+import com.example.andiamo_a_teatro.entities.*;
 import com.example.andiamo_a_teatro.enums.Role;
 import com.example.andiamo_a_teatro.exception.BigliettoNonDisponibileException;
 import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import com.example.andiamo_a_teatro.exception.PoveroException;
 import com.example.andiamo_a_teatro.exception.SpettacoloNonVistoException;
-import com.example.andiamo_a_teatro.repositories.BigliettoRepository;
-import com.example.andiamo_a_teatro.repositories.RecensioneRepository;
-import com.example.andiamo_a_teatro.repositories.SpettacoloRepository;
-import com.example.andiamo_a_teatro.repositories.UtenteRepository;
+import com.example.andiamo_a_teatro.repositories.*;
 import com.example.andiamo_a_teatro.response.BigliettoResponse;
 import com.example.andiamo_a_teatro.response.UtenteResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +31,8 @@ public class UtenteService {
     private SpettacoloRepository spettacoloRepository;
     @Autowired
     private RecensioneRepository recensioneRepository;
+    @Autowired
+    private ComuneRepository comuneRepository;
 
     private Utente mapToUtente(UtenteResponse utenteResponse) {
         Utente.UtenteBuilder utenteBuilder = Utente.builder()
@@ -62,9 +58,16 @@ public class UtenteService {
                 .map(Optional::get)
                 .toList();
 
+        Comune comune = null;
+        if (utenteResponse.getId_comune() != null) {
+            Optional<Comune> comuneOptional = comuneRepository.findById(utenteResponse.getId_comune());
+            comune = comuneOptional.orElse(null);
+        }
+
         return utenteBuilder
                 .bigliettiUtente(bigliettiUtente)
                 .recensioniUtente(recensioniUtente)
+                .comune(comune)
                 .build();
     }
 
@@ -80,8 +83,13 @@ public class UtenteService {
                 .map(Recensione::getId)
                 .collect(Collectors.toList());
 
+        Long idComune = Optional.ofNullable(utente.getComune())
+                .map(Comune::getId)
+                .orElse(null);
+
         return UtenteResponse.builder()
                 .id_utente(utente.getId())
+                .id_comune(idComune)
                 .nome(utente.getNome())
                 .cognome(utente.getCognome())
                 .email(utente.getEmail())
