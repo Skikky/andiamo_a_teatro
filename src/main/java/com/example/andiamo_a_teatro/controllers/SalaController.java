@@ -2,6 +2,7 @@ package com.example.andiamo_a_teatro.controllers;
 
 import com.example.andiamo_a_teatro.entities.Sala;
 import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
+import com.example.andiamo_a_teatro.request.SalaRequest;
 import com.example.andiamo_a_teatro.services.SalaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@Secured("USER")
+@Secured({"SUPERADMIN","ADMIN","USER"})
 @RequestMapping("/sala")
 public class SalaController {
     @Autowired
@@ -30,8 +31,8 @@ public class SalaController {
 
     @Secured({"SUPERADMIN", "ADMIN"})
     @PostMapping("/create")
-    public ResponseEntity<Sala> createSala(@RequestBody Sala sala) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(salaService.createSala(sala));
+    public ResponseEntity<Sala> createSala(@RequestBody SalaRequest salaRequest) throws EntityNotFoundException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(salaService.createSala(salaRequest));
     }
 
     @Secured({"SUPERADMIN", "ADMIN"})

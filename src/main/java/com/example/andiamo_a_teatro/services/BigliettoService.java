@@ -1,16 +1,11 @@
 package com.example.andiamo_a_teatro.services;
 
-import com.example.andiamo_a_teatro.entities.Biglietto;
-import com.example.andiamo_a_teatro.entities.Posto;
-import com.example.andiamo_a_teatro.entities.Spettacolo;
-import com.example.andiamo_a_teatro.entities.Utente;
+import com.example.andiamo_a_teatro.entities.*;
 import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
-import com.example.andiamo_a_teatro.repositories.BigliettoRepository;
-import com.example.andiamo_a_teatro.repositories.PostoRepository;
-import com.example.andiamo_a_teatro.repositories.SpettacoloRepository;
-import com.example.andiamo_a_teatro.repositories.UtenteRepository;
+import com.example.andiamo_a_teatro.repositories.*;
 import com.example.andiamo_a_teatro.request.BigliettoRequest;
 import com.example.andiamo_a_teatro.response.BigliettoResponse;
+import com.example.andiamo_a_teatro.response.UtenteResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,31 +13,71 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BigliettoService {
     @Autowired
     private BigliettoRepository bigliettoRepository;
     @Autowired
-    private SpettacoloRepository spettacoloRepository;
+    private SpettacoloService spettacoloService;
     @Autowired
-    private PostoRepository postoRepository;
+    private PostoService postoService;
     @Autowired
-    private UtenteRepository utenteRepository;
+    private UtenteService utenteService;
+    @Autowired
+    private RecensioneRepository recensioneRepository;
+    @Autowired
+    private ComuneRepository comuneRepository;
+
+    private Utente mapToUtente(UtenteResponse utenteResponse) {
+        Utente.UtenteBuilder utenteBuilder = Utente.builder()
+                .id(utenteResponse.getId_utente())
+                .nome(utenteResponse.getNome())
+                .cognome(utenteResponse.getCognome())
+                .email(utenteResponse.getEmail())
+                .indirizzo(utenteResponse.getIndirizzo())
+                .telefono(utenteResponse.getTelefono())
+                .nascita(utenteResponse.getNascita())
+                .password(utenteResponse.getPassword())
+                .saldo(utenteResponse.getSaldo());
+
+        List<Biglietto> bigliettiUtente = utenteResponse.getId_biglietto().stream()
+                .map(bigliettoRepository::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+
+        List<Recensione> recensioniUtente = utenteResponse.getId_recensione().stream()
+                .map(recensioneRepository::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+
+        Comune comune = null;
+        if (utenteResponse.getId_comune() != null) {
+            Optional<Comune> comuneOptional = comuneRepository.findById(utenteResponse.getId_comune());
+            comune = comuneOptional.orElse(null);
+        }
+
+        return utenteBuilder
+                .bigliettiUtente(bigliettiUtente)
+                .recensioniUtente(recensioniUtente)
+                .comune(comune)
+                .build();
+    }
 
     private Utente mapToUtente(Long utenteId) throws EntityNotFoundException {
-        return utenteRepository.findById(utenteId)
-                .orElseThrow(() -> new EntityNotFoundException(utenteId, "Utente"));
+        UtenteResponse utenteResponse = utenteService.getUtenteById(utenteId);
+        return mapToUtente(utenteResponse);
     }
 
     private Spettacolo mapToSpettacolo(Long spettacoloId) throws EntityNotFoundException {
-        return spettacoloRepository.findById(spettacoloId)
-                .orElseThrow(() -> new EntityNotFoundException(spettacoloId, "Spettacolo"));
+        return spettacoloService.getSpettacoloById(spettacoloId);
     }
 
     private Posto mapToPosto(Long postoId) throws EntityNotFoundException {
-        return postoRepository.findById(postoId)
-                .orElseThrow(() -> new EntityNotFoundException(postoId, "Posto"));
+        return postoService.getPostiById(postoId);
     }
 
     private BigliettoResponse mapBigliettoToResponse(Biglietto biglietto) {
@@ -88,8 +123,7 @@ public class BigliettoService {
 
     public BigliettoResponse updateBiglietto(Long id, BigliettoResponse bigliettoResponse) throws EntityNotFoundException {
 
-        bigliettoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(id, "Biglietto"));
+        getBigliettoById(id);
 
         Utente utente = mapToUtente(bigliettoResponse.getId_utente());
         Spettacolo spettacolo = mapToSpettacolo(bigliettoResponse.getId_spettacolo());
@@ -106,8 +140,7 @@ public class BigliettoService {
     }
 
     public void deleteBigliettoById(Long id) throws EntityNotFoundException {
-        bigliettoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(id, "Biglietto"));
+        getBigliettoById(id);
         bigliettoRepository.deleteById(id);
     }
 }

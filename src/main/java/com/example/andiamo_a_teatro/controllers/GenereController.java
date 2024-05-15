@@ -18,13 +18,13 @@ public class GenereController {
     @Autowired
     private GenereService genereService;
 
-    @Secured("USER")
+    @Secured({"SUPERADMIN","ADMIN","USER"})
     @GetMapping("/get/{id}")
     public ResponseEntity<Genere> getGenereById(@PathVariable Long id) throws EntityNotFoundException {
         return ResponseEntity.ok(genereService.getGenereById(id));
     }
 
-    @Secured("USER")
+    @Secured({"SUPERADMIN","ADMIN","USER"})
     @GetMapping("/all")
     public ResponseEntity<List<Genere>> getAllGeneri() {
         return ResponseEntity.ok(genereService.getAllGeneri());

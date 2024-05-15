@@ -3,6 +3,7 @@ package com.example.andiamo_a_teatro.controllers;
 import com.example.andiamo_a_teatro.entities.Spettacolo;
 import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import com.example.andiamo_a_teatro.exception.NoSpettacoliFoundException;
+import com.example.andiamo_a_teatro.request.SpettacoloRequest;
 import com.example.andiamo_a_teatro.services.SpettacoloService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,14 +48,14 @@ public class SpettacoloController {
 
     @Secured({"SUPERADMIN", "ADMIN"})
     @PostMapping("/create")
-    public ResponseEntity<Spettacolo> createSpettacolo(@RequestBody Spettacolo spettacolo) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(spettacoloService.createSpettacolo(spettacolo));
+    public ResponseEntity<Spettacolo> createSpettacolo(@RequestBody SpettacoloRequest spettacoloRequest) throws EntityNotFoundException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(spettacoloService.createSpettacolo(spettacoloRequest));
     }
 
     @Secured({"SUPERADMIN", "ADMIN"})
     @PutMapping("/update/{id}")
-    public ResponseEntity<Spettacolo> updateSpettacolo(@PathVariable Long id, @RequestBody Spettacolo newSpettacolo) throws EntityNotFoundException {
-        return ResponseEntity.ok(spettacoloService.updateSpettacolo(id, newSpettacolo));
+    public ResponseEntity<Spettacolo> updateSpettacolo(@PathVariable Long id, @RequestBody SpettacoloRequest spettacoloRequest) throws EntityNotFoundException {
+        return ResponseEntity.ok(spettacoloService.updateSpettacolo(id, spettacoloRequest));
     }
 
     @Secured({"SUPERADMIN", "ADMIN"})

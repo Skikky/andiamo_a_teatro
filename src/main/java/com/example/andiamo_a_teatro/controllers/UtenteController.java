@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@Secured("USER")
+@Secured({"SUPERADMIN","ADMIN","USER"})
 @RequestMapping("/utente")
 public class UtenteController {
     @Autowired

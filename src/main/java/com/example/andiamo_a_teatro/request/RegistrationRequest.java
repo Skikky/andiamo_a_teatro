@@ -18,5 +18,5 @@ public class RegistrationRequest {
     private String email;
     private String password;
     private Double saldo;
-
+    private Long id_comune;
 }

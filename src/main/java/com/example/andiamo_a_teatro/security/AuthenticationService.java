@@ -1,9 +1,11 @@
 package com.example.andiamo_a_teatro.security;
 
+import com.example.andiamo_a_teatro.entities.Comune;
 import com.example.andiamo_a_teatro.entities.TokenBlackList;
 import com.example.andiamo_a_teatro.entities.Utente;
 import com.example.andiamo_a_teatro.enums.Role;
 import com.example.andiamo_a_teatro.exception.UserNotConfirmedException;
+import com.example.andiamo_a_teatro.repositories.ComuneRepository;
 import com.example.andiamo_a_teatro.repositories.UtenteRepository;
 import com.example.andiamo_a_teatro.request.AuthenticationRequest;
 import com.example.andiamo_a_teatro.request.RegistrationRequest;
@@ -20,6 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.Optional;
+
 @Service
 public class AuthenticationService {
     @Autowired
@@ -34,8 +38,16 @@ public class AuthenticationService {
     private TokenBlackListService tokenBlackListService;
     @Autowired
     private JavaMailSender javaMailSender;
-
+    @Autowired
+    private ComuneRepository comuneRepository;
     public AuthenticationResponse register(RegistrationRequest registrationRequest) {
+
+        Comune comune = null;
+        if (registrationRequest.getId_comune() != null) {
+            Optional<Comune> comuneOptional = comuneRepository.findById(registrationRequest.getId_comune());
+            comune = comuneOptional.orElse(null);
+        }
+
         var user = Utente.builder()
                 .nome(registrationRequest.getNome())
                 .cognome(registrationRequest.getCognome())
@@ -44,6 +56,7 @@ public class AuthenticationService {
                 .telefono(registrationRequest.getTelefono())
                 .saldo(registrationRequest.getSaldo())
                 .email(registrationRequest.getEmail())
+                .comune(comune)
                 .role(Role.TOCONFIRM)
                 .password(passwordEncoder.encode(registrationRequest.getPassword()))
                 .build();
@@ -60,8 +73,8 @@ public class AuthenticationService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(utente.getEmail());
         message.setSubject("conferma");
-        String url = STR."http://localhost:8080/auth/confirm?id=\{utente.getId()}&token=\{utente.getRegistrationToken()}";
-        message.setText(STR."clicca per confermare: \{url}");
+        String url = "http://localhost:8080/auth/confirm?id="+utente.getId()+"&token="+utente.getRegistrationToken();
+        message.setText("clicca per confermare: "+ url);
         return message;
     }
 

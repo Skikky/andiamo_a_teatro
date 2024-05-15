@@ -44,9 +44,12 @@ public class Utente implements UserDetails {
     private Double saldo;
     @Column(nullable = false)
     private String registrationToken;
-    @Column
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comune_id")
+    private Comune comune;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "utente", cascade = CascadeType.ALL)
     private List<Biglietto> bigliettiUtente;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "utente", cascade = CascadeType.ALL)

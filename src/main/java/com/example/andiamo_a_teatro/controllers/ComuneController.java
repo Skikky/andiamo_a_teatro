@@ -19,13 +19,13 @@ public class ComuneController {
     @Autowired
     private ComuneService comuneService;
 
-    @Secured("USER")
+    @Secured({"SUPERADMIN","ADMIN","USER"})
     @GetMapping("/get/{id}")
     public ResponseEntity<Comune> getComuneById(@PathVariable Long id) throws EntityNotFoundException {
         return ResponseEntity.ok(comuneService.getComuneById(id));
     }
 
-    @Secured("USER")
+    @Secured({"SUPERADMIN","ADMIN","USER"})
     @GetMapping("/all")
     public ResponseEntity<List<Comune>> getAllComuni() {
         return ResponseEntity.ok(comuneService.getAllComuni());

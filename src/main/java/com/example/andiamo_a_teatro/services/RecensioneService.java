@@ -6,8 +6,6 @@ import com.example.andiamo_a_teatro.repositories.RecensioneRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,8 +25,7 @@ public class RecensioneService {
     }
 
     public Recensione updateRecensione(Long id, Recensione newRecensione) throws EntityNotFoundException {
-        recensioneRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(id, "Recensione"));
+        getRecensioneById(id);
         Recensione recensione = Recensione.builder()
                 .id(id)
                 .testo(newRecensione.getTesto())
@@ -41,8 +38,7 @@ public class RecensioneService {
     }
 
     public void deleteRecensioneById(Long id) throws EntityNotFoundException {
-        recensioneRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(id, "Recensione"));
+        getRecensioneById(id);
         recensioneRepository.deleteById(id);
     }
 }

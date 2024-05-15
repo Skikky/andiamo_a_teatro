@@ -28,8 +28,7 @@ public class ComuneService {
     }
 
     public Comune updateComune(Long id, Comune newComune) throws EntityNotFoundException {
-        comuneRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(id, "Comune"));
+        getComuneById(id);
         Comune comune = Comune.builder()
                 .id(id)
                 .nome(newComune.getNome())
@@ -40,8 +39,7 @@ public class ComuneService {
     }
 
     public void deleteComuneById(Long id) throws EntityNotFoundException {
-        comuneRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(id, "Comune"));
+        getComuneById(id);
         comuneRepository.deleteById(id);
     }
 }

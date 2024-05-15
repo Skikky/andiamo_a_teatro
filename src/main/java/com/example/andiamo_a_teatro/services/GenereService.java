@@ -28,8 +28,7 @@ public class GenereService {
     }
 
     public Genere updateGenere(Long id, Genere newGenere) throws EntityNotFoundException {
-        genereRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(id, "Genere"));
+        getGenereById(id);
         Genere genere = Genere.builder()
                 .id(id)
                 .nome(newGenere.getNome())
@@ -39,8 +38,7 @@ public class GenereService {
     }
 
     public void deleteGenereById(Long id) throws EntityNotFoundException {
-        genereRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(id, "Genere"));
+        getGenereById(id);
         genereRepository.deleteById(id);
     }
 }
