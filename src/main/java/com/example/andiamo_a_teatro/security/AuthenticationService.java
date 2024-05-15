@@ -3,6 +3,7 @@ package com.example.andiamo_a_teatro.security;
 import com.example.andiamo_a_teatro.entities.TokenBlackList;
 import com.example.andiamo_a_teatro.entities.Utente;
 import com.example.andiamo_a_teatro.enums.Role;
+import com.example.andiamo_a_teatro.exception.UserNotConfirmedException;
 import com.example.andiamo_a_teatro.repositories.UtenteRepository;
 import com.example.andiamo_a_teatro.request.AuthenticationRequest;
 import com.example.andiamo_a_teatro.request.RegistrationRequest;
@@ -10,6 +11,8 @@ import com.example.andiamo_a_teatro.response.AuthenticationResponse;
 import com.example.andiamo_a_teatro.services.TokenBlackListService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +32,8 @@ public class AuthenticationService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private TokenBlackListService tokenBlackListService;
+    @Autowired
+    private JavaMailSender javaMailSender;
 
     public AuthenticationResponse register(RegistrationRequest registrationRequest) {
         var user = Utente.builder()
@@ -39,21 +44,36 @@ public class AuthenticationService {
                 .telefono(registrationRequest.getTelefono())
                 .saldo(registrationRequest.getSaldo())
                 .email(registrationRequest.getEmail())
-                .role(Role.USER)
+                .role(Role.TOCONFIRM)
                 .password(passwordEncoder.encode(registrationRequest.getPassword()))
                 .build();
         var jwtToken = jwtService.generateToken(user);
         user.setRegistrationToken(jwtToken);
         utenteRepository.saveAndFlush(user);
+
+        javaMailSender.send(createConfirmationMail(user));
+
         return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {
+    private SimpleMailMessage createConfirmationMail (Utente utente) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(utente.getEmail());
+        message.setSubject("conferma");
+        String url = STR."http://localhost:8080/auth/confirm?id=\{utente.getId()}&token=\{utente.getRegistrationToken()}";
+        message.setText(STR."clicca per confermare: \{url}");
+        return message;
+    }
+
+    public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) throws UserNotConfirmedException {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getEmail(),
                 authenticationRequest.getPassword()
         ));
         var user = utenteRepository.findUtenteByEmail(authenticationRequest.getEmail());
+        if (user.getRole().equals(Role.TOCONFIRM)) {
+            throw new UserNotConfirmedException();
+        }
         var jwtToken = jwtService.generateToken(user);
         if (tokenBlackListService.tokenNotValidFromUtenteById(user.getId()).contains(jwtToken)) {
             String email = jwtService.extractUsername(jwtToken);
@@ -82,5 +102,15 @@ public class AuthenticationService {
             return authorizationHeader.substring(7);
         }
         return null;
+    }
+
+    public boolean confirmRegistration (Long id, String token) {
+        Utente utente = utenteRepository.getReferenceById(id);
+        if (utente.getRegistrationToken().equals(token)) {
+            utente.setRole(Role.USER);
+            utenteRepository.saveAndFlush(utente);
+            return true;
+        }
+        return false;
     }
 }
