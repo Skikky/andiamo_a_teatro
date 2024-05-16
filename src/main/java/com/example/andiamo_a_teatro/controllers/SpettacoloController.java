@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("spettacolo")
-@Secured("USER")
+@Secured({"SUPERADMIN","ADMIN","USER"})
 public class SpettacoloController {
     @Autowired
     private SpettacoloService spettacoloService;

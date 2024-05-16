@@ -7,12 +7,15 @@ import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import com.example.andiamo_a_teatro.exception.PoveroException;
 import com.example.andiamo_a_teatro.exception.SpettacoloNonVistoException;
 import com.example.andiamo_a_teatro.repositories.*;
+import com.example.andiamo_a_teatro.request.RecensioneRequest;
 import com.example.andiamo_a_teatro.response.BigliettoResponse;
+import com.example.andiamo_a_teatro.response.RecensioneResponse;
 import com.example.andiamo_a_teatro.response.UtenteResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -34,40 +37,17 @@ public class UtenteService {
     @Autowired
     private ComuneRepository comuneRepository;
 
-    private Utente mapToUtente(UtenteResponse utenteResponse) {
-        Utente.UtenteBuilder utenteBuilder = Utente.builder()
-                .id(utenteResponse.getId_utente())
-                .nome(utenteResponse.getNome())
-                .cognome(utenteResponse.getCognome())
-                .email(utenteResponse.getEmail())
-                .indirizzo(utenteResponse.getIndirizzo())
-                .telefono(utenteResponse.getTelefono())
-                .nascita(utenteResponse.getNascita())
-                .password(utenteResponse.getPassword())
-                .saldo(utenteResponse.getSaldo());
-
-        List<Biglietto> bigliettiUtente = utenteResponse.getId_biglietto().stream()
-                .map(bigliettoRepository::findById)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
-
-        List<Recensione> recensioniUtente = utenteResponse.getId_recensione().stream()
-                .map(recensioneRepository::findById)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
-
-        Comune comune = null;
-        if (utenteResponse.getId_comune() != null) {
-            Optional<Comune> comuneOptional = comuneRepository.findById(utenteResponse.getId_comune());
-            comune = comuneOptional.orElse(null);
+    private RecensioneResponse mapToRecensioneResponse(Recensione recensione) {
+        if (recensione == null) {
+            return null;
         }
 
-        return utenteBuilder
-                .bigliettiUtente(bigliettiUtente)
-                .recensioniUtente(recensioniUtente)
-                .comune(comune)
+        return RecensioneResponse.builder()
+                .testo(recensione.getTesto())
+                .voto(recensione.getVoto())
+                .timestamp(recensione.getTimestamp())
+                .id_spettacolo(recensione.getSpettacolo().getId())
+                .id_utente(recensione.getUtente().getId())
                 .build();
     }
 
@@ -115,8 +95,7 @@ public class UtenteService {
 
     @Transactional(rollbackFor = Exception.class)
     public BigliettoResponse acquistaBiglietto(Long utenteId, Long bigliettoId) throws PoveroException, BigliettoNonDisponibileException, EntityNotFoundException {
-        UtenteResponse utenteResponse = getUtenteById(utenteId);
-        Utente utente = mapToUtente(utenteResponse);
+        Utente utente = getUtenteById(utenteId);
 
         Biglietto biglietto = bigliettoRepository.findById(bigliettoId)
                 .orElseThrow(() -> new EntityNotFoundException(bigliettoId,"Biglietto"));
@@ -142,10 +121,15 @@ public class UtenteService {
         }
     }
 
-    public UtenteResponse getUtenteById(Long id) throws EntityNotFoundException {
+    public Utente getUtenteById(Long id) throws EntityNotFoundException {
         Utente utente = utenteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(id,"Utente"));
+        return utente;
+    }
 
+    public UtenteResponse getUtenteResponseById(Long id) throws EntityNotFoundException {
+        Utente utente = utenteRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(id,"Utente"));
         return mapToUtenteResponse(utente);
     }
 
@@ -173,14 +157,13 @@ public class UtenteService {
         utenteRepository.deleteById(id);
     }
 
-    public Recensione scriviRecensione(Long utenteId, Long spettacoloId, String testo, int voto) throws SpettacoloNonVistoException, EntityNotFoundException {
-        UtenteResponse utenteResponse = getUtenteById(utenteId);
-        Utente utente = mapToUtente(utenteResponse);
+    public RecensioneResponse scriviRecensione(Long utenteId, RecensioneRequest recensioneRequest) throws SpettacoloNonVistoException, EntityNotFoundException {
+        Utente utente = getUtenteById(utenteId);
 
-        Spettacolo spettacolo = spettacoloService.getSpettacoloById(spettacoloId);
+        Spettacolo spettacolo = spettacoloService.getSpettacoloById(recensioneRequest.getId_spettacolo());
 
         boolean visto = utente.getBigliettiUtente().stream()
-                .anyMatch(biglietto -> biglietto.getSpettacolo().getId().equals(spettacoloId)
+                .anyMatch(biglietto -> biglietto.getSpettacolo().getId().equals(recensioneRequest.getId_spettacolo())
                         && biglietto.getSpettacolo().getOrario().isBefore(LocalDateTime.now()));
 
         if (!visto) {
@@ -188,18 +171,19 @@ public class UtenteService {
         }
 
         Recensione recensione = Recensione.builder()
-                .testo(testo)
-                .voto(voto)
+                .testo(recensioneRequest.getTesto())
+                .voto(recensioneRequest.getVoto())
                 .spettacolo(spettacolo)
                 .utente(utente)
+                .timestamp(Timestamp.valueOf(LocalDateTime.now()))
                 .build();
 
-        return recensioneRepository.saveAndFlush(recensione);
+        recensioneRepository.saveAndFlush(recensione);
+        return mapToRecensioneResponse(recensione);
     }
 
     public void updateRole(Long id, String new_role) throws EntityNotFoundException {
-        UtenteResponse utenteResponse = getUtenteById(id);
-        Utente utente = mapToUtente(utenteResponse);
+        Utente utente = getUtenteById(id);
         utente.setRole(Role.valueOf(new_role));
         utenteRepository.saveAndFlush(utente);
     }

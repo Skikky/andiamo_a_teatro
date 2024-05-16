@@ -25,6 +25,7 @@ public class PostoController {
         return ResponseEntity.ok(postoService.getPostiById(id));
     }
 
+    @Secured({"SUPERADMIN","ADMIN","USER"})
     @GetMapping("/all")
     public ResponseEntity<List<Posto>> getAllPosti() {
         return ResponseEntity.ok(postoService.getAllPosti());

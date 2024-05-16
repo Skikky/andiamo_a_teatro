@@ -40,6 +40,7 @@ public class AuthenticationService {
     private JavaMailSender javaMailSender;
     @Autowired
     private ComuneRepository comuneRepository;
+
     public AuthenticationResponse register(RegistrationRequest registrationRequest) {
 
         Comune comune = null;

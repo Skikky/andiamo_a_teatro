@@ -1,5 +1,6 @@
 package com.example.andiamo_a_teatro.response;
 
+import com.example.andiamo_a_teatro.enums.Role;
 import lombok.*;
 
 import java.time.LocalDate;

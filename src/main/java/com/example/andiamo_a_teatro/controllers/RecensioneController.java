@@ -1,7 +1,7 @@
 package com.example.andiamo_a_teatro.controllers;
 
-import com.example.andiamo_a_teatro.entities.Recensione;
 import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
+import com.example.andiamo_a_teatro.response.RecensioneResponse;
 import com.example.andiamo_a_teatro.services.RecensioneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,18 +18,18 @@ public class RecensioneController {
     private RecensioneService recensioneService;
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<Recensione> getById(@PathVariable Long id) throws EntityNotFoundException {
+    public ResponseEntity<RecensioneResponse> getById(@PathVariable Long id) throws EntityNotFoundException {
         return ResponseEntity.ok(recensioneService.getRecensioneById(id));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Recensione>> getAllPosti() {
+    public ResponseEntity<List<RecensioneResponse>> getAllPosti() {
         return ResponseEntity.ok(recensioneService.getAllRecensioni());
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Recensione> updatePosto(@PathVariable Long id, @RequestBody Recensione newRecensione) throws EntityNotFoundException {
-        return ResponseEntity.ok(recensioneService.updateRecensione(id, newRecensione));
+    public ResponseEntity<RecensioneResponse> updatePosto(@PathVariable Long id, @RequestParam String testo, @RequestParam Integer voto) throws EntityNotFoundException {
+        return ResponseEntity.ok(recensioneService.updateRecensione(id, testo, voto));
     }
 
     @DeleteMapping("/delete/{id}")

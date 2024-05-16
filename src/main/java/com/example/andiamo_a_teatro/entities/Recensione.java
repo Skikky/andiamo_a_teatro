@@ -5,6 +5,8 @@ import lombok.*;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Check;
 
+import java.sql.Timestamp;
+
 
 @Entity
 @Table
@@ -22,8 +24,9 @@ public class Recensione {
     private String testo;
     @Column(nullable = false)
     @Check(constraints = "voto >= 0 AND voto <= 5")
-    private int voto;
-    //aggiungi un timestamp
+    private Integer voto;
+    @Column(nullable = false)
+    private Timestamp timestamp;
     @ManyToOne(optional = false)
     @JoinColumn(name = "spettacolo_id", nullable = false)
     private Spettacolo spettacolo;

@@ -1,10 +1,11 @@
 package com.example.andiamo_a_teatro.controllers;
 
-import com.example.andiamo_a_teatro.entities.Recensione;
 import com.example.andiamo_a_teatro.entities.Utente;
 import com.example.andiamo_a_teatro.exception.BigliettoNonDisponibileException;
 import com.example.andiamo_a_teatro.exception.PoveroException;
+import com.example.andiamo_a_teatro.request.RecensioneRequest;
 import com.example.andiamo_a_teatro.response.BigliettoResponse;
+import com.example.andiamo_a_teatro.response.RecensioneResponse;
 import com.example.andiamo_a_teatro.response.UtenteResponse;
 import com.example.andiamo_a_teatro.services.UtenteService;
 import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
@@ -23,8 +24,8 @@ public class UtenteController {
     @Autowired
     private UtenteService utenteService;
 
-    @PostMapping("/{utenteId}/acquista-biglietto/{bigliettoId}")
-    public ResponseEntity<?> acquistaBiglietto(@PathVariable Long utenteId, @PathVariable Long bigliettoId) throws PoveroException, BigliettoNonDisponibileException, EntityNotFoundException {
+    @PostMapping("/acquista-biglietto")
+    public ResponseEntity<?> acquistaBiglietto(@RequestParam Long utenteId, @RequestParam Long bigliettoId) throws PoveroException, BigliettoNonDisponibileException, EntityNotFoundException {
         try {
             BigliettoResponse biglietto = utenteService.acquistaBiglietto(utenteId, bigliettoId);
             return ResponseEntity.ok("Biglietto acquistato con successo per l'utente con ID: " + utenteId);
@@ -35,8 +36,8 @@ public class UtenteController {
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<UtenteResponse> getUtenteById(@PathVariable Long id) throws EntityNotFoundException {
-        return ResponseEntity.ok(utenteService.getUtenteById(id));
+    public ResponseEntity<UtenteResponse> getUtenteResponseById(@PathVariable Long id) throws EntityNotFoundException {
+        return ResponseEntity.ok(utenteService.getUtenteResponseById(id));
     }
 
     @Secured({"SUPERADMIN", "ADMIN"})
@@ -55,23 +56,18 @@ public class UtenteController {
         utenteService.deleteUtenteById(id);
     }
 
-    @PostMapping("/scriviRecensione/{id}")
-    public ResponseEntity<?> scriviRecensione(@RequestBody Recensione newRecensione, @PathVariable Long utenteId) {
+    @PostMapping("/scriviRecensione/{utenteId}")
+    public ResponseEntity<?> scriviRecensione(@PathVariable Long utenteId, @RequestBody RecensioneRequest recensioneRequest) {
         try {
-            Recensione recensione = utenteService.scriviRecensione(
-                    utenteId,
-                    newRecensione.getSpettacolo().getId(),
-                    newRecensione.getTesto(),
-                    newRecensione.getVoto()
-            );
-            return ResponseEntity.ok(recensione);
+            RecensioneResponse recensioneResponse = utenteService.scriviRecensione(utenteId, recensioneRequest);
+            return ResponseEntity.ok(recensioneResponse);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Errore nella creazione della recensione: " + e.getMessage());
         }
     }
 
-    @PutMapping("/update/role")
     @Secured("SUPERADMIN")
+    @PutMapping("/update/role")
     public ResponseEntity<String> updateRole(@RequestParam Long id, @RequestParam String new_role) throws EntityNotFoundException {
         utenteService.updateRole(id, new_role);
         return new ResponseEntity<>("Ruolo aggiornato con successo", HttpStatus.CREATED);

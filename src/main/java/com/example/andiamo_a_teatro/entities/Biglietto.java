@@ -1,6 +1,5 @@
 package com.example.andiamo_a_teatro.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 

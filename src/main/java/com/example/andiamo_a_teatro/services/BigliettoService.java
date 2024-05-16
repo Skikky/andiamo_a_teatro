@@ -5,7 +5,6 @@ import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import com.example.andiamo_a_teatro.repositories.*;
 import com.example.andiamo_a_teatro.request.BigliettoRequest;
 import com.example.andiamo_a_teatro.response.BigliettoResponse;
-import com.example.andiamo_a_teatro.response.UtenteResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,48 +28,6 @@ public class BigliettoService {
     private RecensioneRepository recensioneRepository;
     @Autowired
     private ComuneRepository comuneRepository;
-
-    private Utente mapToUtente(UtenteResponse utenteResponse) {
-        Utente.UtenteBuilder utenteBuilder = Utente.builder()
-                .id(utenteResponse.getId_utente())
-                .nome(utenteResponse.getNome())
-                .cognome(utenteResponse.getCognome())
-                .email(utenteResponse.getEmail())
-                .indirizzo(utenteResponse.getIndirizzo())
-                .telefono(utenteResponse.getTelefono())
-                .nascita(utenteResponse.getNascita())
-                .password(utenteResponse.getPassword())
-                .saldo(utenteResponse.getSaldo());
-
-        List<Biglietto> bigliettiUtente = utenteResponse.getId_biglietto().stream()
-                .map(bigliettoRepository::findById)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
-
-        List<Recensione> recensioniUtente = utenteResponse.getId_recensione().stream()
-                .map(recensioneRepository::findById)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
-
-        Comune comune = null;
-        if (utenteResponse.getId_comune() != null) {
-            Optional<Comune> comuneOptional = comuneRepository.findById(utenteResponse.getId_comune());
-            comune = comuneOptional.orElse(null);
-        }
-
-        return utenteBuilder
-                .bigliettiUtente(bigliettiUtente)
-                .recensioniUtente(recensioniUtente)
-                .comune(comune)
-                .build();
-    }
-
-    private Utente mapToUtente(Long utenteId) throws EntityNotFoundException {
-        UtenteResponse utenteResponse = utenteService.getUtenteById(utenteId);
-        return mapToUtente(utenteResponse);
-    }
 
     private Spettacolo mapToSpettacolo(Long spettacoloId) throws EntityNotFoundException {
         return spettacoloService.getSpettacoloById(spettacoloId);
@@ -125,7 +82,7 @@ public class BigliettoService {
 
         getBigliettoById(id);
 
-        Utente utente = mapToUtente(bigliettoResponse.getId_utente());
+        Utente utente = utenteService.getUtenteById(bigliettoResponse.getId_utente());
         Spettacolo spettacolo = mapToSpettacolo(bigliettoResponse.getId_spettacolo());
         Posto posto = mapToPosto(bigliettoResponse.getId_posto());
         Biglietto biglietto = Biglietto.builder()
