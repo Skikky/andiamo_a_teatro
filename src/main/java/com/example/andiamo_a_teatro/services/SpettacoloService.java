@@ -12,7 +12,6 @@ import com.example.andiamo_a_teatro.request.SpettacoloRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,7 +25,7 @@ public class SpettacoloService {
     @Autowired
     private UtenteRepository utenteRepository;
     @Autowired
-    private JavaMailSender javaMailSender;
+    private EmailService emailService;
     @Autowired
     private SalaService salaService;
     @Autowired
@@ -124,13 +123,11 @@ public class SpettacoloService {
     private void notifyUsers(Spettacolo spettacolo) {
         Long comuneId = spettacolo.getSala().getSede().getComune().getId();
         List<Utente> users = utenteRepository.findAllByComuneId(comuneId);
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setSubject("Nuovo Spettacolo Disponibile");
 
         users.forEach(user -> {
-            message.setTo(user.getEmail());
-            message.setText("Ciao " + user.getNome() + ", un nuovo spettacolo è disponibile nella tua città: " + spettacolo.getNome());
-            javaMailSender.send(message);
+            String text = "Ciao " + user.getNome() + ", un nuovo spettacolo è disponibile nella tua città: " + spettacolo.getNome();
+            SimpleMailMessage message = emailService.createSimpleMessage(user.getEmail(), "Nuovo Spettacolo Disponibile", text);
+            emailService.sendSimpleMessage(message);
         });
     }
 }

@@ -30,32 +30,12 @@ public class RecensioneService {
                 .id_utente(recensione.getUtente().getId())
                 .build();
     }
-/*
-    public Recensione mapToRecensione(RecensioneResponse recensioneResponse) throws EntityNotFoundException {
-        if (recensioneResponse == null) {
-            return null;
-        }
 
-        Spettacolo spettacolo = spettacoloRepository.findById(recensioneResponse.getId_spettacolo())
-                .orElseThrow(() -> new EntityNotFoundException("Spettacolo non trovato con ID: " + recensioneResponse.getId_spettacolo()));
-
-        Utente utente = utenteRepository.findById(recensioneResponse.getId_utente())
-                .orElseThrow(() -> new EntityNotFoundException("Utente non trovato con ID: " + recensioneResponse.getId_utente()));
-
-        return Recensione.builder()
-                .testo(recensioneResponse.getTesto())
-                .voto(recensioneResponse.getVoto())
-                .timestamp(recensioneResponse.getTimestamp())
-                .spettacolo(spettacolo)
-                .utente(utente)
-                .build();
+    public RecensioneResponse getRecensioneById(Long id) throws EntityNotFoundException {
+        Recensione recensione = recensioneRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(id, "Recensione"));
+        return mapToRecensioneResponse(recensione);
     }
-*/
-public RecensioneResponse getRecensioneById(Long id) throws EntityNotFoundException {
-    Recensione recensione = recensioneRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException(id, "Recensione"));
-    return mapToRecensioneResponse(recensione);
-}
 
     public List<RecensioneResponse> getAllRecensioni() {
         return recensioneRepository.findAll().stream().map(this::mapToRecensioneResponse).toList();

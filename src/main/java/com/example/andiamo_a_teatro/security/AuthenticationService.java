@@ -10,11 +10,11 @@ import com.example.andiamo_a_teatro.repositories.UtenteRepository;
 import com.example.andiamo_a_teatro.request.AuthenticationRequest;
 import com.example.andiamo_a_teatro.request.RegistrationRequest;
 import com.example.andiamo_a_teatro.response.AuthenticationResponse;
+import com.example.andiamo_a_teatro.services.EmailService;
 import com.example.andiamo_a_teatro.services.TokenBlackListService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,7 +37,8 @@ public class AuthenticationService {
     @Autowired
     private TokenBlackListService tokenBlackListService;
     @Autowired
-    private JavaMailSender javaMailSender;
+    private EmailService emailService;
+    //private JavaMailSender javaMailSender;
     @Autowired
     private ComuneRepository comuneRepository;
 
@@ -65,18 +66,16 @@ public class AuthenticationService {
         user.setRegistrationToken(jwtToken);
         utenteRepository.saveAndFlush(user);
 
-        javaMailSender.send(createConfirmationMail(user));
+        sendConfirmationEmail(user);
 
         return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
-    private SimpleMailMessage createConfirmationMail (Utente utente) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(utente.getEmail());
-        message.setSubject("conferma");
-        String url = "http://localhost:8080/auth/confirm?id="+utente.getId()+"&token="+utente.getRegistrationToken();
-        message.setText("clicca per confermare: "+ url);
-        return message;
+    private void sendConfirmationEmail(Utente utente) {
+        String url = "http://localhost:8080/auth/confirm?id=" + utente.getId() + "&token=" + utente.getRegistrationToken();
+        String text = "Clicca per confermare: " + url;
+        SimpleMailMessage message = emailService.createSimpleMessage(utente.getEmail(), "Conferma", text);
+        emailService.sendSimpleMessage(message);
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) throws UserNotConfirmedException {
