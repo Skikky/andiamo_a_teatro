@@ -38,7 +38,6 @@ public class AuthenticationService {
     private TokenBlackListService tokenBlackListService;
     @Autowired
     private EmailService emailService;
-    //private JavaMailSender javaMailSender;
     @Autowired
     private ComuneRepository comuneRepository;
 
@@ -73,9 +72,8 @@ public class AuthenticationService {
 
     private void sendConfirmationEmail(Utente utente) {
         String url = "http://localhost:8080/auth/confirm?id=" + utente.getId() + "&token=" + utente.getRegistrationToken();
-        String text = "Clicca per confermare: " + url;
-        SimpleMailMessage message = emailService.createSimpleMessage(utente.getEmail(), "Conferma", text);
-        emailService.sendSimpleMessage(message);
+        String text = "Clicca per confermare la registrazione: " + url;
+        emailService.sendEmail(utente.getEmail(), "Conferma", text);
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) throws UserNotConfirmedException {

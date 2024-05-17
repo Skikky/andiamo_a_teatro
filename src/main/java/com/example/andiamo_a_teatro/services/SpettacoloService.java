@@ -126,8 +126,7 @@ public class SpettacoloService {
 
         users.forEach(user -> {
             String text = "Ciao " + user.getNome() + ", un nuovo spettacolo è disponibile nella tua città: " + spettacolo.getNome();
-            SimpleMailMessage message = emailService.createSimpleMessage(user.getEmail(), "Nuovo Spettacolo Disponibile", text);
-            emailService.sendSimpleMessage(message);
+            emailService.sendEmail(user.getEmail(), "Nuovo Spettacolo Disponibile", text);
         });
     }
 }
