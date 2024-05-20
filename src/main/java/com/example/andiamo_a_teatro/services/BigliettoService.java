@@ -24,10 +24,6 @@ public class BigliettoService {
     private PostoService postoService;
     @Autowired
     private UtenteService utenteService;
-    @Autowired
-    private RecensioneRepository recensioneRepository;
-    @Autowired
-    private ComuneRepository comuneRepository;
 
     private Spettacolo mapToSpettacolo(Long spettacoloId) throws EntityNotFoundException {
         return spettacoloService.getSpettacoloById(spettacoloId);

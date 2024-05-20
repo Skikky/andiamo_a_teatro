@@ -34,8 +34,6 @@ public class UtenteService {
     private SpettacoloService spettacoloService;
     @Autowired
     private RecensioneRepository recensioneRepository;
-    @Autowired
-    private ComuneRepository comuneRepository;
 
     private RecensioneResponse mapToRecensioneResponse(Recensione recensione) {
         if (recensione == null) {
