@@ -4,6 +4,7 @@ import com.example.andiamo_a_teatro.entities.*;
 import com.example.andiamo_a_teatro.enums.Role;
 import com.example.andiamo_a_teatro.exception.*;
 import com.example.andiamo_a_teatro.repositories.*;
+import com.example.andiamo_a_teatro.request.NewsRequest;
 import com.example.andiamo_a_teatro.request.RecensioneRequest;
 import com.example.andiamo_a_teatro.response.BigliettoResponse;
 import com.example.andiamo_a_teatro.response.GenericResponse;
@@ -194,7 +195,12 @@ public class UtenteService {
         if (!news.getLikedByUsers().contains(utente)) {
             news.getLikedByUsers().add(utente);
             news.setLikes(news.getLikes()+1);
-            newsService.updateNews(news);
+
+            NewsRequest newsRequest = NewsRequest.builder()
+                    .body(news.getBody())
+                    .title(news.getTitle())
+                    .build();
+            newsService.updateNews(newsId, newsRequest);
             return new GenericResponse("like aggiunto con successo!");
         } else {
             throw new LikePresente(userId);
@@ -209,7 +215,12 @@ public class UtenteService {
         if (news.getLikedByUsers().contains(utente)) {
             news.getLikedByUsers().remove(utente);
             news.setLikes(news.getLikes()-1);
-            newsService.updateNews(news);
+
+            NewsRequest newsRequest = NewsRequest.builder()
+                    .body(news.getBody())
+                    .title(news.getTitle())
+                    .build();
+            newsService.updateNews(newsId, newsRequest);
             return new GenericResponse("Like rimosso con successo!");
         } else {
             throw new LikeAssente(userId);

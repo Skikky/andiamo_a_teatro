@@ -3,6 +3,7 @@ package com.example.andiamo_a_teatro.services;
 import com.example.andiamo_a_teatro.entities.News;
 import com.example.andiamo_a_teatro.entities.ScheduledNews;
 import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
+import com.example.andiamo_a_teatro.request.NewsRequest;
 import com.example.andiamo_a_teatro.request.ScheduledNewsRequest;
 import com.example.andiamo_a_teatro.repositories.ScheduledNewsRepository;
 import org.quartz.*;
@@ -74,13 +75,12 @@ public class ScheduledNewsService implements Job {
         } catch (SchedulerException | EntityNotFoundException e) {
             throw new RuntimeException(e);
         }
-        News news = News
+        NewsRequest newsRequest = NewsRequest
                 .builder()
                 .title(scheduledNews.getTitle())
                 .body(scheduledNews.getBody())
-                .likes(0)
                 .build();
-        newsService.createNews(news);
+        newsService.createNews(newsRequest);
         System.out.println("News inserita con successo!");
     }
 

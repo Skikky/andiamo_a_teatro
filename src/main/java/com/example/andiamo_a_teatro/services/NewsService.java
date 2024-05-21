@@ -24,10 +24,6 @@ public class NewsService {
         return newsRepository.findAll();
     }
 
-    public void createNews(News news) {
-        newsRepository.saveAndFlush(news);
-    }
-
     public News createNews(NewsRequest newsRequest) {
         News news = News.builder()
                 .body(newsRequest.getBody())
@@ -36,18 +32,6 @@ public class NewsService {
                 .likedByUsers(null)
                 .build();
         return newsRepository.saveAndFlush(news);
-    }
-
-    public void updateNews(News newsRequest) throws EntityNotFoundException {
-        getNewsById(newsRequest.getId());
-        News news = News.builder()
-                .id(newsRequest.getId())
-                .title(newsRequest.getTitle())
-                .body(newsRequest.getBody())
-                .likes(newsRequest.getLikes())
-                .likedByUsers(newsRequest.getLikedByUsers())
-                .build();
-        newsRepository.saveAndFlush(news);
     }
 
     public News updateNews(Long id, NewsRequest newsRequest) throws EntityNotFoundException {
