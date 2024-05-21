@@ -10,7 +10,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table
@@ -54,6 +56,8 @@ public class Utente implements UserDetails {
     private List<Biglietto> bigliettiUtente;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "utente", cascade = CascadeType.ALL)
     private List<Recensione> recensioniUtente;
+    @ManyToMany(mappedBy = "likedByUsers")
+    private Set<News> likedNews = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

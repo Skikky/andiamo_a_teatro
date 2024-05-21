@@ -5,6 +5,7 @@ import com.example.andiamo_a_teatro.exception.BigliettoNonDisponibileException;
 import com.example.andiamo_a_teatro.exception.PoveroException;
 import com.example.andiamo_a_teatro.request.RecensioneRequest;
 import com.example.andiamo_a_teatro.response.BigliettoResponse;
+import com.example.andiamo_a_teatro.response.GenericResponse;
 import com.example.andiamo_a_teatro.response.RecensioneResponse;
 import com.example.andiamo_a_teatro.response.UtenteResponse;
 import com.example.andiamo_a_teatro.services.UtenteService;
@@ -71,5 +72,25 @@ public class UtenteController {
     public ResponseEntity<String> updateRole(@RequestParam Long id, @RequestParam String new_role) throws EntityNotFoundException {
         utenteService.updateRole(id, new_role);
         return new ResponseEntity<>("Ruolo aggiornato con successo", HttpStatus.CREATED);
+    }
+
+    @PostMapping("/like/{userId}")
+    public ResponseEntity<?> addLike(@PathVariable Long userId, @RequestParam Long newsId) throws EntityNotFoundException {
+        try {
+            GenericResponse response = utenteService.addLike(newsId,userId);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/unlike/{userId}")
+    public ResponseEntity<?> removeLike(@PathVariable Long userId, @RequestParam Long newsId) throws EntityNotFoundException {
+        try {
+            GenericResponse response = utenteService.removeLike(userId, newsId);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

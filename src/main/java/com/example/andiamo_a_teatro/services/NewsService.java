@@ -34,6 +34,8 @@ public class NewsService {
                 .id(newsRequest.getId())
                 .title(newsRequest.getTitle())
                 .body(newsRequest.getBody())
+                .likes(newsRequest.getLikes())
+                .likedByUsers(newsRequest.getLikedByUsers())
                 .build();
         newsRepository.saveAndFlush(news);
         return news;

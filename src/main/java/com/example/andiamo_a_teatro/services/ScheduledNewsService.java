@@ -77,6 +77,7 @@ public class ScheduledNewsService implements Job {
                 .builder()
                 .title(scheduledNews.getTitle())
                 .body(scheduledNews.getBody())
+                .likes(0)
                 .build();
         newsService.createNews(news);
         System.out.println("News inserita con successo!");

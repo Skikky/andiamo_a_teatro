@@ -1,7 +1,11 @@
 package com.example.andiamo_a_teatro.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table
@@ -18,4 +22,14 @@ public class News {
     private String title;
     @Column
     private String body;
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(
+            name = "news_likes",
+            joinColumns = @JoinColumn(name = "news_id"),
+            inverseJoinColumns = @JoinColumn(name = "utente_id")
+    )
+    private Set<Utente> likedByUsers = new HashSet<>();
+    @Column(nullable = false)
+    private Integer likes = 0;
 }

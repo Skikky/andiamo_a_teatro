@@ -9,6 +9,7 @@ import com.example.andiamo_a_teatro.exception.SpettacoloNonVistoException;
 import com.example.andiamo_a_teatro.repositories.*;
 import com.example.andiamo_a_teatro.request.RecensioneRequest;
 import com.example.andiamo_a_teatro.response.BigliettoResponse;
+import com.example.andiamo_a_teatro.response.GenericResponse;
 import com.example.andiamo_a_teatro.response.RecensioneResponse;
 import com.example.andiamo_a_teatro.response.UtenteResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,8 @@ public class UtenteService {
     private SpettacoloService spettacoloService;
     @Autowired
     private RecensioneRepository recensioneRepository;
+    @Autowired
+    private NewsService newsService;
 
     private RecensioneResponse mapToRecensioneResponse(Recensione recensione) {
         if (recensione == null) {
@@ -184,5 +187,35 @@ public class UtenteService {
         Utente utente = getUtenteById(id);
         utente.setRole(Role.valueOf(new_role));
         utenteRepository.saveAndFlush(utente);
+    }
+
+    @Transactional
+    public GenericResponse addLike(Long newsId, Long userId) throws EntityNotFoundException {
+        News news = newsService.getNewsById(newsId);
+        Utente utente = getUtenteById(userId);
+
+        if (!news.getLikedByUsers().contains(utente)) {
+            news.getLikedByUsers().add(utente);
+            news.setLikes(news.getLikes()+1);
+            newsService.updateNews(news);
+            return new GenericResponse("like aggiunto con successo!");
+        } else {
+            throw new IllegalArgumentException("l'utente con id "+userId+" ha già messo mi piace a questa news");
+        }
+    }
+
+    @Transactional
+    public GenericResponse removeLike(Long userId, Long newsId) throws EntityNotFoundException {
+        News news = newsService.getNewsById(newsId);
+        Utente utente = getUtenteById(userId);
+
+        if (news.getLikedByUsers().contains(utente)) {
+            news.getLikedByUsers().remove(utente);
+            news.setLikes(news.getLikes()-1);
+            newsService.updateNews(news);
+            return new GenericResponse("Like rimosso con successo!");
+        } else {
+            throw new IllegalArgumentException("l'utente "+userId+" non ha messo mi piace alla news");
+        }
     }
 }
