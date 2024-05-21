@@ -2,10 +2,7 @@ package com.example.andiamo_a_teatro.services;
 
 import com.example.andiamo_a_teatro.entities.*;
 import com.example.andiamo_a_teatro.enums.Role;
-import com.example.andiamo_a_teatro.exception.BigliettoNonDisponibileException;
-import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
-import com.example.andiamo_a_teatro.exception.PoveroException;
-import com.example.andiamo_a_teatro.exception.SpettacoloNonVistoException;
+import com.example.andiamo_a_teatro.exception.*;
 import com.example.andiamo_a_teatro.repositories.*;
 import com.example.andiamo_a_teatro.request.RecensioneRequest;
 import com.example.andiamo_a_teatro.response.BigliettoResponse;
@@ -190,7 +187,7 @@ public class UtenteService {
     }
 
     @Transactional
-    public GenericResponse addLike(Long newsId, Long userId) throws EntityNotFoundException {
+    public GenericResponse addLike(Long newsId, Long userId) throws EntityNotFoundException , LikePresente{
         News news = newsService.getNewsById(newsId);
         Utente utente = getUtenteById(userId);
 
@@ -200,12 +197,12 @@ public class UtenteService {
             newsService.updateNews(news);
             return new GenericResponse("like aggiunto con successo!");
         } else {
-            throw new IllegalArgumentException("l'utente con id "+userId+" ha già messo mi piace a questa news");
+            throw new LikePresente(userId);
         }
     }
 
     @Transactional
-    public GenericResponse removeLike(Long userId, Long newsId) throws EntityNotFoundException {
+    public GenericResponse removeLike(Long userId, Long newsId) throws EntityNotFoundException, LikeAssente {
         News news = newsService.getNewsById(newsId);
         Utente utente = getUtenteById(userId);
 
@@ -215,7 +212,7 @@ public class UtenteService {
             newsService.updateNews(news);
             return new GenericResponse("Like rimosso con successo!");
         } else {
-            throw new IllegalArgumentException("l'utente "+userId+" non ha messo mi piace alla news");
+            throw new LikeAssente(userId);
         }
     }
 }
