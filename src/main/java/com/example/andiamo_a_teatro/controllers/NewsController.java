@@ -18,8 +18,7 @@ public class NewsController {
 
     @GetMapping("/get/{id}")
     public ResponseEntity<News> getNewsById(@PathVariable Long id) throws EntityNotFoundException {
-        News bankNews = newsService.getNewsById(id);
-        return new ResponseEntity<>(bankNews, HttpStatus.OK);
+        return ResponseEntity.ok(newsService.getNewsById(id));
     }
 
     @GetMapping("/all")
@@ -30,5 +29,15 @@ public class NewsController {
     @PostMapping("/create")
     public ResponseEntity<News> createNews(@RequestBody News News) {
         return new ResponseEntity<>(newsService.createNews(News), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<News> updateNews(@RequestBody News newsRequest) throws EntityNotFoundException {
+        return ResponseEntity.ok(newsService.updateNews(newsRequest));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public void deleteNewsById(@PathVariable Long id) throws EntityNotFoundException {
+        newsService.deleteNewsById(id);
     }
 }

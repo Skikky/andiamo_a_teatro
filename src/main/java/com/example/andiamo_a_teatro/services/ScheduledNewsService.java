@@ -2,6 +2,7 @@ package com.example.andiamo_a_teatro.services;
 
 import com.example.andiamo_a_teatro.entities.News;
 import com.example.andiamo_a_teatro.entities.ScheduledNews;
+import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import com.example.andiamo_a_teatro.request.ScheduledNewsRequest;
 import com.example.andiamo_a_teatro.repositories.ScheduledNewsRepository;
 import org.quartz.*;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,10 +22,13 @@ public class ScheduledNewsService implements Job {
     @Autowired
     private NewsService newsService;
 
-    public ScheduledNews getScheduledNewsById(Long id) {
+    public ScheduledNews getScheduledNewsById(Long id) throws EntityNotFoundException {
         Optional<ScheduledNews> optionalScheduledNews = scheduledNewsRepository.findById(id);
-        if (optionalScheduledNews.isEmpty()) throw new IllegalArgumentException("non esiste la news schedulata richiesta!");
-        return optionalScheduledNews.get();
+        return optionalScheduledNews.orElseThrow(() -> new EntityNotFoundException(id,"ScheduledNews"));
+    }
+
+    public List<ScheduledNews> getAllScheduledNews() {
+        return scheduledNewsRepository.findAll();
     }
 
     public ScheduledNewsRequest createScheduledNews(ScheduledNewsRequest request) throws SchedulerException {
