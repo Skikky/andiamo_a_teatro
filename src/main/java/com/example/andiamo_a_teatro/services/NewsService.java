@@ -3,6 +3,7 @@ package com.example.andiamo_a_teatro.services;
 import com.example.andiamo_a_teatro.entities.News;
 import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import com.example.andiamo_a_teatro.repositories.NewsRepository;
+import com.example.andiamo_a_teatro.request.NewsRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +24,21 @@ public class NewsService {
         return newsRepository.findAll();
     }
 
-    public News createNews(News News) {
-        newsRepository.saveAndFlush(News);
-        return News;
+    public void createNews(News news) {
+        newsRepository.saveAndFlush(news);
     }
 
-    public News updateNews(News newsRequest) throws EntityNotFoundException {
+    public News createNews(NewsRequest newsRequest) {
+        News news = News.builder()
+                .body(newsRequest.getBody())
+                .title(newsRequest.getTitle())
+                .likes(0)
+                .likedByUsers(null)
+                .build();
+        return newsRepository.saveAndFlush(news);
+    }
+
+    public void updateNews(News newsRequest) throws EntityNotFoundException {
         getNewsById(newsRequest.getId());
         News news = News.builder()
                 .id(newsRequest.getId())
@@ -38,7 +48,18 @@ public class NewsService {
                 .likedByUsers(newsRequest.getLikedByUsers())
                 .build();
         newsRepository.saveAndFlush(news);
-        return news;
+    }
+
+    public News updateNews(Long id, NewsRequest newsRequest) throws EntityNotFoundException {
+        News existingNews = getNewsById(id);
+        News news = News.builder()
+                .id(id)
+                .title(newsRequest.getTitle())
+                .body(newsRequest.getBody())
+                .likes(existingNews.getLikes())
+                .likedByUsers(existingNews.getLikedByUsers())
+                .build();
+        return newsRepository.saveAndFlush(news);
     }
 
     public void deleteNewsById(Long id) throws EntityNotFoundException {

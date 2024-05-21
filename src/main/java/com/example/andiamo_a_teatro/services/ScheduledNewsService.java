@@ -8,6 +8,7 @@ import com.example.andiamo_a_teatro.repositories.ScheduledNewsRepository;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -70,7 +71,7 @@ public class ScheduledNewsService implements Job {
         ScheduledNews scheduledNews = (ScheduledNews) jobDataMap.get("entity");
         try {
             deleteScheduledNewsById(scheduledNews.getId());
-        } catch (SchedulerException e) {
+        } catch (SchedulerException | EntityNotFoundException e) {
             throw new RuntimeException(e);
         }
         News news = News
@@ -83,12 +84,13 @@ public class ScheduledNewsService implements Job {
         System.out.println("News inserita con successo!");
     }
 
-    public ScheduledNewsRequest updateScheduledNews(Long id, ScheduledNewsRequest request) throws SchedulerException {
+    public ScheduledNewsRequest updateScheduledNews(Long id, ScheduledNewsRequest request) throws SchedulerException, EntityNotFoundException {
         deleteScheduledNewsById(id);
         return createScheduledNews(request);
     }
 
-    public void deleteScheduledNewsById(Long id) throws SchedulerException {
+    public void deleteScheduledNewsById(Long id) throws SchedulerException, EntityNotFoundException {
+        getScheduledNewsById(id);
         JobKey jobKey = new JobKey(String.valueOf(id), "news");
         scheduler.deleteJob(jobKey);
         scheduledNewsRepository.deleteById(id);

@@ -35,12 +35,12 @@ public class ScheduledNewsController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<ScheduledNewsRequest> updateScheduledNews(@PathVariable Long id, @RequestBody ScheduledNewsRequest request) throws SchedulerException {
+    public ResponseEntity<ScheduledNewsRequest> updateScheduledNews(@PathVariable Long id, @RequestBody ScheduledNewsRequest request) throws SchedulerException, EntityNotFoundException {
         return new ResponseEntity<>(scheduledNewsService.updateScheduledNews(id, request), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deleteScheduledNewsById(@PathVariable Long id) throws SchedulerException {
+    public void deleteScheduledNewsById(@PathVariable Long id) throws SchedulerException, EntityNotFoundException {
         scheduledNewsService.deleteScheduledNewsById(id);
     }
 }

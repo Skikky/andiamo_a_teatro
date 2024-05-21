@@ -2,6 +2,7 @@ package com.example.andiamo_a_teatro.controllers;
 
 import com.example.andiamo_a_teatro.entities.News;
 import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
+import com.example.andiamo_a_teatro.request.NewsRequest;
 import com.example.andiamo_a_teatro.services.NewsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,14 +31,14 @@ public class NewsController {
 
     @Secured({"SUPERADMIN","ADMIN"})
     @PostMapping("/create")
-    public ResponseEntity<News> createNews(@RequestBody News news) {
-        return new ResponseEntity<>(newsService.createNews(news), HttpStatus.CREATED);
+    public ResponseEntity<News> createNews(@RequestBody NewsRequest newsRequest) {
+        return new ResponseEntity<>(newsService.createNews(newsRequest), HttpStatus.CREATED);
     }
 
     @Secured({"SUPERADMIN","ADMIN"})
     @PutMapping("/update/{id}")
-    public ResponseEntity<News> updateNews(@RequestBody News newsRequest) throws EntityNotFoundException {
-        return ResponseEntity.ok(newsService.updateNews(newsRequest));
+    public ResponseEntity<News> updateNews(@PathVariable Long id, @RequestBody NewsRequest newsRequest) throws EntityNotFoundException {
+        return ResponseEntity.ok(newsService.updateNews(id,newsRequest));
     }
 
     @Secured({"SUPERADMIN","ADMIN"})
