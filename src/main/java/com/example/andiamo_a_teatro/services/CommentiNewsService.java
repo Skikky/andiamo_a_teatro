@@ -41,4 +41,3 @@ public class CommentiNewsService {
         commentiNewsRepository.deleteById(id);
     }
 }
-
