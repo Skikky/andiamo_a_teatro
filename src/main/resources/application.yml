@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: "jdbc:mysql://localhost:3306/teatro"
+    url: "jdbc:mysql://localhost:3306/teatro_loreto"
     username: "root"
-    password: "stickStick"
+    password: "Trucebaldanzi35"
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:

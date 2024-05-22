@@ -22,6 +22,8 @@ public class CommentiNews {
     private News news;
     @Column(nullable = false)
     private String testo;
+    @Column
+    private Long id_risposta;
     @Column(nullable = false)
     private LocalDateTime insertTime;
     @Column
