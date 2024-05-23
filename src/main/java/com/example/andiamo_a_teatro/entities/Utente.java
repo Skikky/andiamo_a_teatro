@@ -56,7 +56,7 @@ public class Utente implements UserDetails {
     private List<Biglietto> bigliettiUtente;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "utente", cascade = CascadeType.ALL)
     private List<Recensione> recensioniUtente;
-    @ManyToMany(mappedBy = "likedByUsers")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "likedByUsers", cascade = CascadeType.ALL)
     private Set<News> likedNews = new HashSet<>();
 
     @Override

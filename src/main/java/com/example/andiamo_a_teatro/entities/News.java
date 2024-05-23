@@ -23,7 +23,7 @@ public class News {
     @Column
     private String body;
     @JsonIgnore
-    @ManyToMany(cascade = CascadeType.REMOVE)
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "news_likes",
             joinColumns = @JoinColumn(name = "news_id"),
@@ -32,4 +32,12 @@ public class News {
     private Set<Utente> likedByUsers = new HashSet<>();
     @Column(nullable = false)
     private Integer likes = 0;
+
+    @PrePersist
+    @PreUpdate
+    private void validateLikesConsistency() {
+        if (likedByUsers != null && likedByUsers.size() != likes) {
+            throw new IllegalStateException("il numero di utenti e il numero di likes deve essere lo stesso!");
+        }
+    }
 }
