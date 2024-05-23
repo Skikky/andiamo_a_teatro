@@ -6,10 +6,7 @@ import com.example.andiamo_a_teatro.exception.*;
 import com.example.andiamo_a_teatro.repositories.*;
 import com.example.andiamo_a_teatro.request.NewsRequest;
 import com.example.andiamo_a_teatro.request.RecensioneRequest;
-import com.example.andiamo_a_teatro.response.BigliettoResponse;
-import com.example.andiamo_a_teatro.response.GenericResponse;
-import com.example.andiamo_a_teatro.response.RecensioneResponse;
-import com.example.andiamo_a_teatro.response.UtenteResponse;
+import com.example.andiamo_a_teatro.response.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +18,7 @@ import java.util.Optional;
 
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -225,5 +223,17 @@ public class UtenteService {
         } else {
             throw new LikeAssente(userId);
         }
+    }
+
+    public UserLikesResponse getUserLikes(Long userId) throws EntityNotFoundException {
+        Utente utente = getUtenteById(userId);
+
+        Set<Long> newsIds = utente.getLikedNews().stream()
+                .map(News::getId)
+                .collect(Collectors.toSet());
+
+        int likeCount = newsIds.size();
+
+        return new UserLikesResponse(likeCount, newsIds);
     }
 }

@@ -1,14 +1,18 @@
 package com.example.andiamo_a_teatro.services;
 
 import com.example.andiamo_a_teatro.entities.News;
+import com.example.andiamo_a_teatro.entities.Utente;
 import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
 import com.example.andiamo_a_teatro.repositories.NewsRepository;
 import com.example.andiamo_a_teatro.request.NewsRequest;
+import com.example.andiamo_a_teatro.response.NewsLikesResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class NewsService {
@@ -49,5 +53,15 @@ public class NewsService {
     public void deleteNewsById(Long id) throws EntityNotFoundException {
         getNewsById(id);
         newsRepository.deleteById(id);
+    }
+
+    public NewsLikesResponse getNewsLikes(Long id) throws EntityNotFoundException {
+        News news = getNewsById(id);
+
+        Set<Long> userIds = news.getLikedByUsers().stream()
+                .map(Utente::getId)
+                .collect(Collectors.toSet());
+
+        return new NewsLikesResponse(news.getLikes(), userIds);
     }
 }

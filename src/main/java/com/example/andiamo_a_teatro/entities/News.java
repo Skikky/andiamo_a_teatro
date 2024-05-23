@@ -23,7 +23,7 @@ public class News {
     @Column
     private String body;
     @JsonIgnore
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = CascadeType.REMOVE)
     @JoinTable(
             name = "news_likes",
             joinColumns = @JoinColumn(name = "news_id"),

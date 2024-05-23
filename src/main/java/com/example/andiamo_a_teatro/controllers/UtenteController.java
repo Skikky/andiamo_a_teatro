@@ -3,10 +3,7 @@ package com.example.andiamo_a_teatro.controllers;
 import com.example.andiamo_a_teatro.entities.Utente;
 import com.example.andiamo_a_teatro.exception.*;
 import com.example.andiamo_a_teatro.request.RecensioneRequest;
-import com.example.andiamo_a_teatro.response.BigliettoResponse;
-import com.example.andiamo_a_teatro.response.GenericResponse;
-import com.example.andiamo_a_teatro.response.RecensioneResponse;
-import com.example.andiamo_a_teatro.response.UtenteResponse;
+import com.example.andiamo_a_teatro.response.*;
 import com.example.andiamo_a_teatro.services.UtenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -90,5 +87,10 @@ public class UtenteController {
         } catch (LikeAssente e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/{userId}/likes")
+    public UserLikesResponse getUserLikes(@PathVariable Long userId) throws EntityNotFoundException {
+        return utenteService.getUserLikes(userId);
     }
 }
