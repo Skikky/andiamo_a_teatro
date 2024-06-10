@@ -4,17 +4,18 @@ import com.example.andiamo_a_teatro.entities.Comune;
 import com.example.andiamo_a_teatro.entities.TokenBlackList;
 import com.example.andiamo_a_teatro.entities.Utente;
 import com.example.andiamo_a_teatro.enums.Role;
-import com.example.andiamo_a_teatro.exception.UserNotConfirmedException;
+import com.example.andiamo_a_teatro.exception.*;
 import com.example.andiamo_a_teatro.repositories.ComuneRepository;
 import com.example.andiamo_a_teatro.repositories.UtenteRepository;
 import com.example.andiamo_a_teatro.request.AuthenticationRequest;
+import com.example.andiamo_a_teatro.request.ChangePasswordRequest;
 import com.example.andiamo_a_teatro.request.RegistrationRequest;
 import com.example.andiamo_a_teatro.response.AuthenticationResponse;
 import com.example.andiamo_a_teatro.services.EmailService;
+import com.example.andiamo_a_teatro.services.PasswordValidationService;
 import com.example.andiamo_a_teatro.services.TokenBlackListService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,13 +41,19 @@ public class AuthenticationService {
     private EmailService emailService;
     @Autowired
     private ComuneRepository comuneRepository;
+    @Autowired
+    private PasswordValidationService passwordValidationService;
 
-    public AuthenticationResponse register(RegistrationRequest registrationRequest) {
+    public AuthenticationResponse register(RegistrationRequest registrationRequest) throws PasswordDeboleException {
 
         Comune comune = null;
         if (registrationRequest.getId_comune() != null) {
             Optional<Comune> comuneOptional = comuneRepository.findById(registrationRequest.getId_comune());
             comune = comuneOptional.orElse(null);
+        }
+
+        if (!passwordValidationService.isPasswordValid(registrationRequest.getPassword())) {
+            throw new PasswordDeboleException();
         }
 
         var user = Utente.builder()
@@ -115,7 +122,7 @@ public class AuthenticationService {
         return null;
     }
 
-    public boolean confirmRegistration (Long id, String token) {
+    public boolean confirmRegistration(Long id, String token) {
         Utente utente = utenteRepository.getReferenceById(id);
         if (utente.getRegistrationToken().equals(token)) {
             utente.setRole(Role.USER);
@@ -124,4 +131,21 @@ public class AuthenticationService {
         }
         return false;
     }
+
+    public void cambiaPassword(ChangePasswordRequest request) throws EntityNotFoundException, PasswordDeboleException, PasswordUgualiException, PasswordSbagliataException {
+        Utente utente = utenteRepository.findById(request.getIdUtente())
+                .orElseThrow(() -> new EntityNotFoundException(request.getIdUtente(), "Utente"));
+        if (!passwordEncoder.matches(request.getOldPassword(), utente.getPassword())) {
+            throw new PasswordSbagliataException();
+        }
+        if (passwordEncoder.matches(request.getNewPassword(), utente.getPassword())) {
+            throw new PasswordUgualiException();
+        }
+        if (!passwordValidationService.isPasswordValid(request.getNewPassword())) {
+            throw new PasswordDeboleException();
+        }
+        utente.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        utenteRepository.saveAndFlush(utente);
+    }
+
 }

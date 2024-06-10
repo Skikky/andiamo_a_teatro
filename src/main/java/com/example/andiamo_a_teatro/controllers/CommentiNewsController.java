@@ -12,9 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/comments")
+@RequestMapping("/commenti")
 public class CommentiNewsController {
-
     @Autowired
     private CommentiNewsService commentiNewsService;
 
@@ -43,6 +42,4 @@ public class CommentiNewsController {
         commentiNewsService.deleteCommento(id);
         return new ResponseEntity<>(new GenericResponse("Commento con id " + id + " eliminato con successo"), HttpStatus.OK);
     }
-
-
 }

@@ -37,4 +37,40 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse("No Spettacoli Found Exception", e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(PasswordDeboleException.class)
+    public ResponseEntity<ErrorResponse> handlePasswordDeboleException(NoSpettacoliFoundException e) {
+        ErrorResponse errorResponse = new ErrorResponse("Password Debole Exception", e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PasswordUgualiException.class)
+    public ResponseEntity<ErrorResponse> handlePasswordUgualiException(NoSpettacoliFoundException e) {
+        ErrorResponse errorResponse = new ErrorResponse("Password Uguali Exception", e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PasswordSbagliataException.class)
+    public ResponseEntity<ErrorResponse> handlePasswordSbagliataException(NoSpettacoliFoundException e) {
+        ErrorResponse errorResponse = new ErrorResponse("Password Sbagliata Exception", e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(SpamCommentiException.class)
+    public ResponseEntity<ErrorResponse> handleSpamCommentiException(NoSpettacoliFoundException e) {
+        ErrorResponse errorResponse = new ErrorResponse("Spam Commenti Exception", e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(LikeAssente.class)
+    public ResponseEntity<ErrorResponse> handleLikeAssenteException(NoSpettacoliFoundException e) {
+        ErrorResponse errorResponse = new ErrorResponse("Like assente Exception", e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(LikePresente.class)
+    public ResponseEntity<ErrorResponse> handleLikePresenteException(NoSpettacoliFoundException e) {
+        ErrorResponse errorResponse = new ErrorResponse("Like presente Exception", e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
 }

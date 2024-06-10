@@ -119,9 +119,8 @@ public class UtenteService {
     }
 
     public Utente getUtenteById(Long id) throws EntityNotFoundException {
-        Utente utente = utenteRepository.findById(id)
+        return utenteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(id,"Utente"));
-        return utente;
     }
 
     public UtenteResponse getUtenteResponseById(Long id) throws EntityNotFoundException {

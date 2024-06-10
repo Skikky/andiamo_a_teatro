@@ -1,8 +1,8 @@
 package com.example.andiamo_a_teatro.security;
 
-import com.example.andiamo_a_teatro.exception.ErrorResponse;
-import com.example.andiamo_a_teatro.exception.UserNotConfirmedException;
+import com.example.andiamo_a_teatro.exception.*;
 import com.example.andiamo_a_teatro.request.AuthenticationRequest;
+import com.example.andiamo_a_teatro.request.ChangePasswordRequest;
 import com.example.andiamo_a_teatro.request.RegistrationRequest;
 import com.example.andiamo_a_teatro.response.AuthenticationResponse;
 import com.example.andiamo_a_teatro.response.GenericResponse;
@@ -20,8 +20,12 @@ public class AuthenticationController {
     private AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegistrationRequest registrationRequest) {
-        return ResponseEntity.ok(authenticationService.register(registrationRequest));
+    public ResponseEntity<?> register(@RequestBody RegistrationRequest registrationRequest) {
+        try {
+            return ResponseEntity.ok(authenticationService.register(registrationRequest));
+        } catch (PasswordDeboleException e) {
+            return new ResponseEntity<>(new ErrorResponse("PasswordDeboleException", e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/login")
@@ -44,5 +48,12 @@ public class AuthenticationController {
             return new ResponseEntity<>(new GenericResponse("Utente verificato con successo. "),HttpStatus.OK);
         }
         return new ResponseEntity<>(new ErrorResponse("UtenteNotConfirmedExcception","non è possibile verificare l'utente"), HttpStatus.BAD_REQUEST);
+    }
+
+    @PutMapping("/cambia-password")
+    public ResponseEntity<?> cambiaPassword (HttpServletRequest httpRequest, @RequestBody ChangePasswordRequest request) throws EntityNotFoundException, PasswordUgualiException, PasswordSbagliataException, PasswordDeboleException {
+        authenticationService.cambiaPassword(request);
+        authenticationService.logout(httpRequest, request.getIdUtente());
+        return new ResponseEntity<>(new GenericResponse("Password cambiata con successo"),HttpStatus.OK);
     }
 }
