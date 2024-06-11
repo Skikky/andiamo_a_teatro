@@ -4,7 +4,6 @@ import com.example.andiamo_a_teatro.exception.*;
 import com.example.andiamo_a_teatro.request.AuthenticationRequest;
 import com.example.andiamo_a_teatro.request.ChangePasswordRequest;
 import com.example.andiamo_a_teatro.request.RegistrationRequest;
-import com.example.andiamo_a_teatro.response.AuthenticationResponse;
 import com.example.andiamo_a_teatro.response.GenericResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +42,7 @@ public class AuthenticationController {
     }
 
     @GetMapping("/confirm")
-    public ResponseEntity<?> confirmRegistration (@RequestParam Long id, @RequestParam String token) {
+    private ResponseEntity<?> confirmRegistration (@RequestParam Long id, @RequestParam String token) {
         if (authenticationService.confirmRegistration(id, token)) {
             return new ResponseEntity<>(new GenericResponse("Utente verificato con successo. "),HttpStatus.OK);
         }
@@ -55,5 +54,21 @@ public class AuthenticationController {
         authenticationService.cambiaPassword(request);
         authenticationService.logout(httpRequest, request.getIdUtente());
         return new ResponseEntity<>(new GenericResponse("Password cambiata con successo"),HttpStatus.OK);
+    }
+
+    @PostMapping("/password-dimenticata")
+    public ResponseEntity<?> passwordDimenticata(@RequestParam String email, @RequestParam String newPassword) {
+        try {
+            authenticationService.passwordDimenticata(email, newPassword);
+            return new ResponseEntity<>(new GenericResponse("Email di reset inviata"),HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/reset")
+    private ResponseEntity<GenericResponse> resetPassword(@RequestParam String email, @RequestParam String newPassword) {
+        authenticationService.resetPassword(email, newPassword);
+        return new ResponseEntity<>(new GenericResponse("Email resettata con successo"), HttpStatus.OK);
     }
 }

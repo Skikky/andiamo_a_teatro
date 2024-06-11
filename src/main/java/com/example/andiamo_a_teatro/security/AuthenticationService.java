@@ -148,4 +148,26 @@ public class AuthenticationService {
         utenteRepository.saveAndFlush(utente);
     }
 
+    public void passwordDimenticata(String email, String newPassword){
+        Utente utente = utenteRepository.findUtenteByEmail(email);
+
+        if (utente == null) {
+            throw new IllegalArgumentException("Utente non trovato com questa email");
+        }
+
+        sendResetPasswordEmail(email,newPassword);
+    }
+
+    protected void resetPassword(String email, String newPassword) {
+        Utente utente = utenteRepository.findUtenteByEmail(email);
+        utente.setPassword(passwordEncoder.encode(newPassword));
+        utenteRepository.saveAndFlush(utente);
+    }
+
+    private void sendResetPasswordEmail(String email,String password) {
+        String url = "http://localhost:8080/auth/reset?email="+ email+"&newPassword=" +password;
+        String text = "Clicca per resettare la password: " + url;
+        emailService.sendEmail(email, "Reset", text);
+    }
+
 }
