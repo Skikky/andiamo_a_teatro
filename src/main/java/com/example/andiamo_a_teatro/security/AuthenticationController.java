@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequestMapping("/auth")
@@ -41,8 +42,9 @@ public class AuthenticationController {
         authenticationService.logout(httpRequest, id);
     }
 
+    @ApiIgnore
     @GetMapping("/confirm")
-    private ResponseEntity<?> confirmRegistration (@RequestParam Long id, @RequestParam String token) {
+    public ResponseEntity<?> confirmRegistration (@RequestParam Long id, @RequestParam String token) {
         if (authenticationService.confirmRegistration(id, token)) {
             return new ResponseEntity<>(new GenericResponse("Utente verificato con successo. "),HttpStatus.OK);
         }
@@ -66,8 +68,9 @@ public class AuthenticationController {
         }
     }
 
+    @ApiIgnore
     @GetMapping("/reset")
-    private ResponseEntity<GenericResponse> resetPassword(@RequestParam String email, @RequestParam String newPassword) {
+    public ResponseEntity<GenericResponse> resetPassword(@RequestParam String email, @RequestParam String newPassword) {
         authenticationService.resetPassword(email, newPassword);
         return new ResponseEntity<>(new GenericResponse("Email resettata con successo"), HttpStatus.OK);
     }

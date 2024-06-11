@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -68,7 +69,7 @@ public class ApplicationConfig {
         mailSender.setPort(587);
 
         mailSender.setUsername("backendacademy2024@gmail.com");
-        mailSender.setPassword("kqzxxuvqkvhltjna");
+        mailSender.setPassword("hfjdfdfbdjkfhjdfjkhsdjfdksjkdsafdsdbhjfdksffdskfhfdskh");
 
         Properties properties = mailSender.getJavaMailProperties();
         properties.put("mail.transport.protocol","smtp");
@@ -77,5 +78,15 @@ public class ApplicationConfig {
         properties.put("mail.debug", "true");
 
         return mailSender;
+    }
+
+    //per escludere alcuni endpoint
+    @Bean
+    public GroupedOpenApi userApi() {
+        return GroupedOpenApi.builder()
+                .group("default")
+                .pathsToMatch("/**")
+                .pathsToExclude("/auth/reset","/auth/confirm")
+                .build();
     }
 }
