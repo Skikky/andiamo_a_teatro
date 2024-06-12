@@ -5,12 +5,18 @@ import com.example.andiamo_a_teatro.exception.*;
 import com.example.andiamo_a_teatro.request.RecensioneRequest;
 import com.example.andiamo_a_teatro.response.*;
 import com.example.andiamo_a_teatro.services.UtenteService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController

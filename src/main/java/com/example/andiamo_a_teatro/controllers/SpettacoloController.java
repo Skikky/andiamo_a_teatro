@@ -2,15 +2,22 @@ package com.example.andiamo_a_teatro.controllers;
 
 import com.example.andiamo_a_teatro.entities.Spettacolo;
 import com.example.andiamo_a_teatro.exception.EntityNotFoundException;
+import com.example.andiamo_a_teatro.exception.ErrorResponse;
 import com.example.andiamo_a_teatro.exception.NoSpettacoliFoundException;
 import com.example.andiamo_a_teatro.request.SpettacoloRequest;
+import com.example.andiamo_a_teatro.response.GenericResponse;
 import com.example.andiamo_a_teatro.services.SpettacoloService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -62,5 +69,34 @@ public class SpettacoloController {
     @DeleteMapping("/delete/{id}")
     public void deleteSpettacoloById(@PathVariable Long id) throws EntityNotFoundException {
         spettacoloService.deleteSpettacoloById(id);
+    }
+
+    @PutMapping("/upload_documento/{id}")
+    public ResponseEntity<?> uploadDocumento(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws EntityNotFoundException {
+        try {
+            // Controllo il tipo di file
+            if (!file.getContentType().equals("application/pdf")) {
+                return new ResponseEntity<>(new GenericResponse("Solo file PDF sono ammessi"), HttpStatus.BAD_REQUEST);
+            }
+            spettacoloService.uploadDocumento(id, file);
+            return new ResponseEntity<>(new GenericResponse("File caricato con successo"), HttpStatus.CREATED);
+        } catch (IOException e) {
+            return new ResponseEntity<>(new ErrorResponse("InputOutputException","Errore nel caricamento del file"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/download_documento/{id}")
+    public ResponseEntity<GenericResponse> downloadDocumento(@PathVariable Long id, HttpServletResponse response) throws IOException {
+        String pathFile = spettacoloService.getPath(id);
+        Path filePath = Path.of(pathFile);
+        String mimeType = Files.probeContentType(filePath);
+        if (mimeType == null) {
+            mimeType = "application/octet-stream";
+        }
+        response.setContentType(mimeType); // setto l'header content-type
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filePath.getFileName().toString() + "\"");
+        response.setContentLength((int) Files.size(filePath));
+        Files.copy(filePath, response.getOutputStream());
+        return new ResponseEntity<>(new GenericResponse("file scaricato con successo"), HttpStatus.OK);
     }
 }

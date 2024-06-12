@@ -3,10 +3,14 @@ package com.example.andiamo_a_teatro.repositories;
 import com.example.andiamo_a_teatro.entities.Spettacolo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SpettacoloRepository extends JpaRepository<Spettacolo, Long>, JpaSpecificationExecutor<Spettacolo> {
+    @Query(value = "SELECT documento FROM spettacolo WHERE id =:id_spettacolo", nativeQuery = true)
+    String getFilePath(@Param("id_spettacolo") Long id_spettacolo);
 }
 /*
 public interface SpettacoloRepository extends JpaRepository<Spettacolo, Long> {

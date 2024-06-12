@@ -34,4 +34,6 @@ public class Spettacolo {
     @ManyToOne(optional = false)
     @JoinColumn(name = "genere_id", nullable = false)
     private Genere genere;
+    @Column
+    private String documento;
 }

@@ -11,9 +11,13 @@ import com.example.andiamo_a_teatro.repositories.UtenteRepository;
 import com.example.andiamo_a_teatro.request.SpettacoloRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -128,5 +132,34 @@ public class SpettacoloService {
             String text = "Ciao " + user.getNome() + ", un nuovo spettacolo è disponibile nella tua città: " + spettacolo.getNome();
             emailService.sendEmail(user.getEmail(), "Nuovo Spettacolo Disponibile", text);
         });
+    }
+
+    public void uploadDocumento(Long id, MultipartFile file) throws EntityNotFoundException, IOException {
+        Spettacolo spettacolo = getSpettacoloById(id);
+
+        String originalFilename = file.getOriginalFilename();
+        String filename = originalFilename;
+        Path filePath = Paths.get("src/main/resources/documents/" + filename);
+
+        // Aggiungo un numero incrementale al nome del file se esiste già
+        int count = 1;
+        while (Files.exists(filePath)) {
+            String baseName = originalFilename.substring(0, originalFilename.lastIndexOf('.'));
+            String extension = originalFilename.substring(originalFilename.lastIndexOf('.'));
+            filename = baseName + "(" + count + ")" + extension;
+            filePath = Paths.get("src/main/resources/documents/" + filename);
+            count++;
+        }
+
+        // Copio il file nella directory
+        Files.copy(file.getInputStream(), filePath);
+
+        // Salvo il percorso del file nel database
+        spettacolo.setDocumento(filePath.toString());
+        spettacoloRepository.saveAndFlush(spettacolo);
+    }
+
+    public String getPath(Long id) {
+        return spettacoloRepository.getFilePath(id);
     }
 }

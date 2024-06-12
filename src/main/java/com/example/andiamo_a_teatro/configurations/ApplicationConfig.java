@@ -69,7 +69,7 @@ public class ApplicationConfig {
         mailSender.setPort(587);
 
         mailSender.setUsername("backendacademy2024@gmail.com");
-        mailSender.setPassword("hfjdfdfbdjkfhjdfjkhsdjfdksjkdsafdsdbhjfdksffdskfhfdskh");
+        mailSender.setPassword("kqzxxuvqkvhltjna");
 
         Properties properties = mailSender.getJavaMailProperties();
         properties.put("mail.transport.protocol","smtp");
