@@ -137,6 +137,15 @@ public class SpettacoloService {
     public void uploadDocumento(Long id, MultipartFile file) throws EntityNotFoundException, IOException {
         Spettacolo spettacolo = getSpettacoloById(id);
 
+        // Cancella il file precedente se esiste
+        String existingFilePath = spettacolo.getDocumento();
+        if (existingFilePath != null && !existingFilePath.isEmpty()) {
+            Path existingFile = Paths.get(existingFilePath);
+            if (Files.exists(existingFile)) {
+                Files.delete(existingFile);
+            }
+        }
+
         String originalFilename = file.getOriginalFilename();
         String filename = originalFilename;
         Path filePath = Paths.get("src/main/resources/documents/" + filename);

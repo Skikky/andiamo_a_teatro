@@ -71,6 +71,7 @@ public class SpettacoloController {
         spettacoloService.deleteSpettacoloById(id);
     }
 
+    @Secured({"SUPERADMIN", "ADMIN"})
     @PutMapping("/upload_documento/{id}")
     public ResponseEntity<?> uploadDocumento(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws EntityNotFoundException {
         try {
