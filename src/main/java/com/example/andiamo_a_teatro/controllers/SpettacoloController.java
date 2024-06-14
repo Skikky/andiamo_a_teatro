@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("spettacolo")
@@ -75,8 +76,7 @@ public class SpettacoloController {
     @PutMapping("/upload_documento/{id}")
     public ResponseEntity<?> uploadDocumento(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws EntityNotFoundException {
         try {
-            // Controllo il tipo di file
-            if (!file.getContentType().equals("application/pdf")) {
+            if (!Objects.equals(file.getContentType(), "application/pdf")) {
                 return new ResponseEntity<>(new GenericResponse("Solo file PDF sono ammessi"), HttpStatus.BAD_REQUEST);
             }
             spettacoloService.uploadDocumento(id, file);

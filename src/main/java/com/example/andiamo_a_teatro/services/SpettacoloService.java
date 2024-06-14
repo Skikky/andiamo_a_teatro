@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -137,7 +138,6 @@ public class SpettacoloService {
     public void uploadDocumento(Long id, MultipartFile file) throws EntityNotFoundException, IOException {
         Spettacolo spettacolo = getSpettacoloById(id);
 
-        // Cancella il file precedente se esiste
         String existingFilePath = spettacolo.getDocumento();
         if (existingFilePath != null && !existingFilePath.isEmpty()) {
             Path existingFile = Paths.get(existingFilePath);
@@ -146,24 +146,11 @@ public class SpettacoloService {
             }
         }
 
-        String originalFilename = file.getOriginalFilename();
-        String filename = originalFilename;
-        Path filePath = Paths.get("src/main/resources/documents/" + filename);
+        String filename = file.getOriginalFilename();
+        Path filePath = Paths.get("src/main/resources/documents/" +id+ "_" + filename);
 
-        // Aggiungo un numero incrementale al nome del file se esiste già
-        int count = 1;
-        while (Files.exists(filePath)) {
-            String baseName = originalFilename.substring(0, originalFilename.lastIndexOf('.'));
-            String extension = originalFilename.substring(originalFilename.lastIndexOf('.'));
-            filename = baseName + "(" + count + ")" + extension;
-            filePath = Paths.get("src/main/resources/documents/" + filename);
-            count++;
-        }
-
-        // Copio il file nella directory
         Files.copy(file.getInputStream(), filePath);
 
-        // Salvo il percorso del file nel database
         spettacolo.setDocumento(filePath.toString());
         spettacoloRepository.saveAndFlush(spettacolo);
     }
