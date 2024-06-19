@@ -3,6 +3,8 @@ package com.example.andiamo_a_teatro.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table
 @Getter
@@ -18,4 +20,8 @@ public class TokenBlackList {
     private String token;
     @ManyToOne
     private Utente utente;
+    @Column
+    private LocalDateTime insertTime;
+    @Column
+    private LocalDateTime lastUpdate;
 }
