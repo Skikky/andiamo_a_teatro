@@ -59,7 +59,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/password-dimenticata")
-    public ResponseEntity<?> passwordDimenticata(@RequestParam String email, @RequestParam String newPassword) {
+    public ResponseEntity<?> passwordDimenticata(@RequestParam String email, @RequestParam String newPassword) throws PasswordDeboleException {
         try {
             authenticationService.passwordDimenticata(email, newPassword);
             return new ResponseEntity<>(new GenericResponse("Email di reset inviata"),HttpStatus.OK);
@@ -70,7 +70,7 @@ public class AuthenticationController {
 
     @ApiIgnore
     @GetMapping("/reset")
-    public ResponseEntity<GenericResponse> resetPassword(@RequestParam String email, @RequestParam String newPassword) {
+    public ResponseEntity<GenericResponse> resetPassword(@RequestParam String email, @RequestParam String newPassword) throws PasswordDeboleException {
         authenticationService.resetPassword(email, newPassword);
         return new ResponseEntity<>(new GenericResponse("Email resettata con successo"), HttpStatus.OK);
     }

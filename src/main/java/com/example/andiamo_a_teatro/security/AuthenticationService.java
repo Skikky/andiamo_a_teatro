@@ -148,11 +148,14 @@ public class AuthenticationService {
         utenteRepository.saveAndFlush(utente);
     }
 
-    public void passwordDimenticata(String email, String newPassword){
+    public void passwordDimenticata(String email, String newPassword) throws PasswordDeboleException {
         Utente utente = utenteRepository.findUtenteByEmail(email);
 
         if (utente == null) {
             throw new IllegalArgumentException("Utente non trovato com questa email");
+        }
+        if (!passwordValidationService.isPasswordValid(newPassword)) {
+            throw new PasswordDeboleException();
         }
 
         sendResetPasswordEmail(email,newPassword);
