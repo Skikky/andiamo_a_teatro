@@ -70,7 +70,7 @@ public class AuthenticationController {
 
     @ApiIgnore
     @GetMapping("/reset")
-    public ResponseEntity<GenericResponse> resetPassword(@RequestParam String email, @RequestParam String newPassword) throws PasswordDeboleException {
+    public ResponseEntity<GenericResponse> resetPassword(@RequestParam String email, @RequestParam String newPassword) {
         authenticationService.resetPassword(email, newPassword);
         return new ResponseEntity<>(new GenericResponse("Email resettata con successo"), HttpStatus.OK);
     }
